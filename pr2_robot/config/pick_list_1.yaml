@@ -1,0 +1,34 @@
+object_list:
+  - name: biscuits
+    group: green
+    position:
+      x: 0.56
+      y: -0.24
+      z: 0.97
+    orientation:
+      x: 0.5
+      y: 0.5
+      z: -0.5
+      w: 0.5
+  - name: soap
+    group: green
+    position:
+      x: 0.58
+      y: -0.02
+      z: 0.93
+    orientation:
+      x: -0.259
+      y: 0.658
+      z: 0.259
+      w: 0.658
+  - name: soap2
+    group: red
+    position:
+      x: 0.46
+      y: 0.22
+      z: 0.86
+    orientation:
+      x: 0.140
+      y: 0.693
+      z: -0.140
+      w: 0.693

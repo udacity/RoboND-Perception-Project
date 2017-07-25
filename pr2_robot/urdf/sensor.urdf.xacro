@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <!-- RGBD camera -->
+  <link name="camera_link">
+  <collision>
+    <origin xyz="-0.016 0 0" rpy="0 0 0"/>
+    <geometry>
+      <box size="0.036 0.18 0.04"/>
+    </geometry>
+  </collision>
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://sensor_stick/meshes/asus_xtion.dae"/>
+    </geometry>
+  </visual>
+  <inertial>
+    <mass value="0.2" />
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <inertia ixx="5.8083e-4" ixy="0" ixz="0" iyy="3.0833e-5" iyz="0" izz="5.9083e-4" />
+  </inertial>
+  </link>
+
+  <link name="camera_rgb_frame" />
+
+  <joint name="camera_link_joint" type="fixed">
+    <origin rpy="0 0.75 0" xyz="0.065 0 0.4" />
+    <parent link="torso_lift_link" />
+    <child link="camera_link" />
+  </joint>
+  <joint name="camera_rgb_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0.022 0" />
+    <parent link="camera_link" />
+    <child link="camera_rgb_frame" />
+  </joint>
+  <link name="camera_rgb_optical_frame" />
+  <joint name="camera_rgb_optical_joint" type="fixed">
+    <origin rpy="-1.57079632679 0 -1.57079632679" xyz="0 0 0" />
+    <parent link="camera_rgb_frame" />
+    <child link="camera_rgb_optical_frame" />
+  </joint>
+  <link name="camera_depth_frame" />
+  <joint name="camera_depth_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0.049 0" />
+    <parent link="camera_link" />
+    <child link="camera_depth_frame" />
+  </joint>
+  <link name="camera_depth_optical_frame" />
+  <joint name="camera_depth_optical_joint" type="fixed">
+    <origin rpy="-1.57079632679 0 -1.57079632679" xyz="0 0 0" />
+    <parent link="camera_depth_frame" />
+    <child link="camera_depth_optical_frame" />
+  </joint>
+
+</robot>

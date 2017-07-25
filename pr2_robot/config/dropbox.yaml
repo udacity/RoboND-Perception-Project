@@ -1,0 +1,7 @@
+dropbox:
+  - name: left
+    group: red
+    position: [0,0.71,0.605]
+  - name: right
+    group: green
+    position: [0,-0.71,0.605]

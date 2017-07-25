@@ -1,0 +1,9 @@
+# request
+std_msgs/String object_name
+std_msgs/String arm_name
+geometry_msgs/Pose pick_pose
+geometry_msgs/Pose place_pose
+geometry_msgs/Pose grasp_pose
+---
+# response
+bool success

@@ -1,0 +1,25 @@
+<launch>
+  <!--Include description and control launch files-->
+  <include file="$(find pr2_robot)/launch/robot_description.launch"/>
+  <include file="$(find pr2_robot)/launch/robot_control.launch"/>
+
+  <!--Launch a gazebo world-->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <!--arg name="world_name" value="$(find pr2_robot)/worlds/bin.world"/-->
+    <arg name="use_sim_time" value="true"/>
+    <arg name="paused" value="false"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+
+  <!--spawn a robot in gazebo world-->
+  <!--arg name="ROBOT_INITIAL_JOINTS" value="-J right_shoulder_pan_joint -1.5 -unpause"/-->
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false"
+    output="screen" args="-urdf -param robot_description
+    -x 0 -y -0 -z 0 -R 0 -P 0 -Y 0 -model pr2 "/>
+
+  <node name="cloud_transformer" pkg="pr2_robot" type="pr2_cloud_transformer"
+    respawn="false" output="screen"/>
+
+</launch>

@@ -1,0 +1,10 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: pr2_robot
+    relative_path: urdf/pr2.urdf.xacro
+  SRDF:
+    relative_path: config/pr2.srdf
+  CONFIG:
+    author_name: Harsh Pandya
+    author_email: harsh@electricmovement.com
+    generated_timestamp: 1500498214

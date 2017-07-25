@@ -1,0 +1,223 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/pr2</robotNamespace>
+      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+    </plugin>
+  </gazebo>
+
+  <!--RGBD camera -->
+  <gazebo reference="camera_rgb_frame">
+   <sensor type="depth" name="camera">
+     <always_on>true</always_on>
+     <visualize>false</visualize>
+     <update_rate>15.0</update_rate>
+     <camera name="front">
+       <horizontal_fov>1.5</horizontal_fov><!--default=1.047197-->
+       <image>
+         <!-- openni_kinect plugin works only with BGR8 -->
+         <format>B8G8R8</format>
+         <width>1024</width>
+         <height>576</height>
+       </image>
+       <clip>
+         <near>0.01</near>
+         <far>9</far>
+       </clip>
+     </camera>
+     <plugin name="camera_controller" filename="libgazebo_ros_openni_kinect.so">
+       <baseline>0.1</baseline>
+       <alwaysOn>true</alwaysOn>
+       <updateRate>15.0</updateRate>
+       <cameraName>camera</cameraName>
+       <imageTopicName>/camera/rgb/image_raw</imageTopicName>
+       <cameraInfoTopicName>/camera/rgb/camera_info</cameraInfoTopicName>
+       <depthImageTopicName>/camera/depth_registered/image_raw</depthImageTopicName>
+       <depthImageCameraInfoTopicName>/camera/depth_registered/camera_info</depthImageCameraInfoTopicName>
+       <pointCloudTopicName>/camera/depth_registered/points</pointCloudTopicName>
+       <frameName>camera_rgb_optical_frame</frameName>
+       <pointCloudCutoff>0.5</pointCloudCutoff>
+       <pointCloudCutoffMax>3.0</pointCloudCutoffMax>
+       <CxPrime>0</CxPrime>
+       <Cx>0</Cx>
+       <Cy>0</Cy>
+       <focalLength>0</focalLength>
+       <hackBaseline>0</hackBaseline>
+     </plugin>
+   </sensor>
+  </gazebo>
+
+  <!-- grasp plugin -->
+  <gazebo>
+    <plugin name="gazebo_grasp_fix" filename="libgazebo_grasp_fix.so">
+      <arm>
+        <arm_name>pr2_right_arm</arm_name>
+        <palm_link>right_wrist_roll_link</palm_link>
+        <gripper_link>right_right_gripper_finger_link</gripper_link>
+        <gripper_link>right_left_gripper_finger_link</gripper_link>
+      </arm>
+      <forces_angle_tolerance>100</forces_angle_tolerance>
+      <update_rate>4</update_rate>
+      <grip_count_threshold>4</grip_count_threshold>
+      <max_grip_count>8</max_grip_count>
+      <release_tolerance>0.003</release_tolerance>
+      <disable_collisions_on_attach>false</disable_collisions_on_attach>
+      <contact_topic>__default_topic__</contact_topic>
+    </plugin>
+  </gazebo>
+
+  <!--Link properties-->
+  <gazebo reference="base_link">
+    <selfCollide>false</selfCollide>
+  </gazebo>
+
+  <!-- Shoulder pan -->
+  <gazebo reference="right_shoulder_pan_link">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
+  <gazebo reference="right_shoulder_pan_joint">
+    <stopKd value="1.0" />
+    <stopKp value="1000000.0" />
+  </gazebo>
+  <gazebo reference="left_shoulder_pan_link">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
+  <gazebo reference="left_shoulder_pan_joint">
+    <stopKd value="1.0" />
+    <stopKp value="1000000.0" />
+  </gazebo>
+
+  <!-- Shoulder lift -->
+  <gazebo reference="right_shoulder_lift_link">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
+  <gazebo reference="right_shoulder_lift_joint">
+    <stopKd value="1.0" />
+    <stopKp value="1000000.0" />
+  </gazebo>
+  <gazebo reference="left_shoulder_lift_link">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
+  <gazebo reference="left_shoulder_lift_joint">
+    <stopKd value="1.0" />
+    <stopKp value="1000000.0" />
+  </gazebo>
+
+  <gazebo reference="right_upper_arm_roll_link">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
+  <gazebo reference="right_upper_arm_roll_joint">
+    <stopKd value="1.0" />
+    <stopKp value="1000000.0" />
+    <fudgeFactor value="0.5" />
+  </gazebo>
+  <gazebo reference="left_upper_arm_roll_link">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
+  <gazebo reference="left_upper_arm_roll_joint">
+    <stopKd value="1.0" />
+    <stopKp value="1000000.0" />
+    <fudgeFactor value="0.5" />
+  </gazebo>
+
+  <gazebo reference="right_upper_arm_link">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
+  <gazebo reference="left_upper_arm_link">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
+
+  <!-- Elbow flex -->
+  <gazebo reference="right_elbow_flex_link">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
+  <gazebo reference="right_elbow_flex_joint">
+    <stopKd value="1.0" />
+    <stopKp value="1000000.0" />
+  </gazebo>
+  <gazebo reference="left_elbow_flex_link">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
+  <gazebo reference="left_elbow_flex_joint">
+    <stopKd value="1.0" />
+    <stopKp value="1000000.0" />
+  </gazebo>
+
+  <!-- Forearm roll -->
+  <gazebo reference="right_forearm_roll_link">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
+  <gazebo reference="right_forearm_roll_joint">
+    <fudgeFactor value="0.5" />
+  </gazebo>
+  <gazebo reference="left_forearm_roll_link">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
+  <gazebo reference="left_forearm_roll_joint">
+    <fudgeFactor value="0.5" />
+  </gazebo>
+
+  <gazebo reference="right_forearm_link">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
+  <gazebo reference="left_forearm_link">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
+
+  <gazebo reference="right_wrist_flex_link">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
+  <gazebo reference="right_wrist_flex_joint">
+    <stopKd value="1.0" />
+    <stopKp value="1000000.0" />
+  </gazebo>
+  <gazebo reference="left_wrist_flex_link">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
+  <gazebo reference="left_wrist_flex_joint">
+    <stopKd value="1.0" />
+    <stopKp value="1000000.0" />
+  </gazebo>
+
+  <gazebo reference="right_wrist_roll_link">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
+  <gazebo reference="right_wrist_roll_joint">
+    <fudgeFactor value="0.5" />
+  </gazebo>
+  <gazebo reference="left_wrist_roll_link">
+    <turnGravityOff>true</turnGravityOff>
+  </gazebo>
+  <gazebo reference="left_wrist_roll_joint">
+    <fudgeFactor value="0.5" />
+  </gazebo>
+
+  <!-- Gripper -->
+
+  <xacro:macro name="pr2_gripper_gazebo" params="side">
+    <gazebo reference="${side}_gripper_link">
+      <material>Gazebo/DarkGrey</material>
+      <turnGravityOff>true</turnGravityOff>
+      <mu1>0.2</mu1>
+      <mu2>0.2</mu2>
+    </gazebo>
+    <gazebo reference="${side}_left_gripper_finger_link">
+      <material>Gazebo/DarkGrey</material>
+      <turnGravityOff>true</turnGravityOff>
+    </gazebo>
+    <gazebo reference="${side}_right_gripper_finger_link">
+      <material>Gazebo/DarkGrey</material>
+      <turnGravityOff>true</turnGravityOff>
+      <kp>1000000.0</kp>
+      <kd>1.0</kd>
+      <mu1>30.0</mu1>
+      <mu2>30.0</mu2>
+    </gazebo>
+  </xacro:macro>
+
+  <gazebo reference="camera_link">
+    <material>Gazebo/DarkGrey</material>
+  </gazebo>
+
+</robot>

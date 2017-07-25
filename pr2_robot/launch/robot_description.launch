@@ -1,0 +1,17 @@
+<launch>
+  <!-- send pr2 urdf to param server -->
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find pr2_robot)/urdf/pr2.urdf.xacro'" />
+
+  <!--GUI used to send fake joint values-->
+  <!--node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+    <param name="use_gui" value="true"/>
+  </node-->
+
+  <!--Publish robot state to TF-->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+    <remap from="/joint_states" to="/pr2/joint_states" />
+  </node>
+
+  <node name="joint_state_relay" pkg="topic_tools" type="relay"
+    args="/pr2/joint_states /joint_states"/>
+</launch>

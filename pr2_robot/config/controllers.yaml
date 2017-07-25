@@ -1,0 +1,97 @@
+pr2:
+    #list of controllers
+    joint_state_controller:
+      type: joint_state_controller/JointStateController
+      publish_rate: 50
+
+    torso_lift_joint_controller:
+      type: position_controllers/JointPositionController
+      joint: torso_lift_joint
+      pid: {p: 100.0, i: 0.1, d: 1.0}
+
+    world_joint_controller:
+      type: position_controllers/JointPositionController
+      joint: world_joint
+      pid: {p: 100.0, i: 0.1, d: 1.0}
+
+    right_gripper_controller:
+      type: "effort_controllers/JointTrajectoryController"
+      joints:
+        - right_right_gripper_finger_joint
+        - right_left_gripper_finger_joint
+      gains:
+        right_right_gripper_finger_joint: {p: 100, i: 1, d: 10, i_clamp: 1.0}
+        right_left_gripper_finger_joint: {p: 100, i: 1, d: 10, i_clamp: 1.0}
+      constraints:
+        goal_time: 3.0
+        right_right_gripper_finger_joint:
+          goal: 0.02
+        right_left_gripper_finger_joint:
+          goal: 0.02
+
+    left_gripper_controller:
+      type: "effort_controllers/JointTrajectoryController"
+      joints:
+        - left_right_gripper_finger_joint
+        - left_left_gripper_finger_joint
+      gains:
+        left_right_gripper_finger_joint: {p: 100, i: 1, d: 10, i_clamp: 1.0}
+        left_left_gripper_finger_joint: {p: 100, i: 1, d: 10, i_clamp: 1.0}
+      constraints:
+        goal_time: 3.0
+        left_right_gripper_finger_joint:
+          goal: 0.02
+        left_left_gripper_finger_joint:
+          goal: 0.02
+
+    right_arm_controller:
+      type: "position_controllers/JointTrajectoryController"
+      joints:
+        - right_shoulder_pan_joint
+        - right_shoulder_lift_joint
+        - right_upper_arm_roll_joint
+        - right_elbow_flex_joint
+        - right_forearm_roll_joint
+        - right_wrist_flex_joint
+        - right_wrist_roll_joint
+      gains:
+        right_shoulder_pan_joint: {p: 100, i: 0.01, d: 1}
+        right_shoulder_lift_joint: {p: 100, i: 0.01, d: 1}
+        right_upper_arm_roll_joint: {p: 100, i: 0.01, d: 1}
+        right_elbow_flex_joint: {p: 100, i: 0.01, d: 1}
+        right_forearm_roll_joint: {p: 100, i: 0.01, d: 1}
+        right_wrist_flex_joint: {p: 100, i: 0.01, d: 1}
+        right_wrist_roll_joint: {p: 100, i: 0.01, d: 1}
+
+      constraints:
+        goal_time: 10.0                  # Override default
+
+      state_publish_rate:  50            # Override default
+      action_monitor_rate: 30            # Override default
+      stop_trajectory_duration: 0        # Override default
+
+    left_arm_controller:
+      type: "position_controllers/JointTrajectoryController"
+      joints:
+        - left_shoulder_pan_joint
+        - left_shoulder_lift_joint
+        - left_upper_arm_roll_joint
+        - left_elbow_flex_joint
+        - left_forearm_roll_joint
+        - left_wrist_flex_joint
+        - left_wrist_roll_joint
+      gains:
+        left_shoulder_pan_joint: {p: 100, i: 0.01, d: 1}
+        left_shoulder_lift_joint: {p: 100, i: 0.01, d: 1}
+        left_upper_arm_roll_joint: {p: 100, i: 0.01, d: 1}
+        left_elbow_flex_joint: {p: 100, i: 0.01, d: 1}
+        left_forearm_roll_joint: {p: 100, i: 0.01, d: 1}
+        left_wrist_flex_joint: {p: 100, i: 0.01, d: 1}
+        left_wrist_roll_joint: {p: 100, i: 0.01, d: 1}
+
+      constraints:
+        goal_time: 10.0                  # Override default
+
+      state_publish_rate:  50            # Override default
+      action_monitor_rate: 30            # Override default
+      stop_trajectory_duration: 0        # Override default

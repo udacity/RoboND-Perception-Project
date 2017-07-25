@@ -1,0 +1,14 @@
+<launch>
+  <!--Load the joint controllers to param server-->
+  <rosparam file="$(find pr2_robot)/config/controllers.yaml" command="load"/>
+
+  <!--Load controllers-->
+  <node name="spawner" pkg="controller_manager" type="spawner" respawn="false"
+    output="screen" ns="/pr2" args="joint_state_controller
+    right_arm_controller
+    left_arm_controller
+    torso_lift_joint_controller
+    left_gripper_controller
+    right_gripper_controller
+    world_joint_controller"/>
+</launch>
