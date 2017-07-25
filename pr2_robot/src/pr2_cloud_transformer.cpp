@@ -30,7 +30,8 @@ class CloudTransformer
 {
 public:
   explicit CloudTransformer(ros::NodeHandle nh)
-    : nh_(nh)
+    : nh_(nh),
+      demo_(0)
   {
     // Define Publishers and Subscribers here
     pcl_sub_ = nh_.subscribe("/camera/depth_registered/points", 1, &CloudTransformer::pclCallback, this);
@@ -38,10 +39,20 @@ public:
 
     buffer_.reset(new sensor_msgs::PointCloud2);
     buffer_->header.frame_id = "world";
+
+    if(ros::param::get("/pr2_cloud_transformer/demo", demo_))
+    {
+      ROS_INFO_STREAM("Demo flag: "<<demo_);
+    }
+    else
+    {
+      ROS_ERROR("Failed to get demo flag");
+    }
   }
 
 private:
   ros::NodeHandle nh_;
+  bool demo_;
   ros::Subscriber pcl_sub_;
   ros::Publisher pcl_pub_;
   tf::TransformListener listener_;
@@ -53,47 +64,55 @@ private:
     listener_.waitForTransform("world", "camera_link", ros::Time::now(), ros::Duration(1.0));
     pcl_ros::transformPointCloud("world", *pcl_msg, *buffer_, listener_);
 
-    // Add noise to buffer Point Cloud
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZRGB>);
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_out (new pcl::PointCloud<pcl::PointXYZRGB>);
-    sensor_msgs::PointCloud2::Ptr noisy_buffer_ (new sensor_msgs::PointCloud2);
-
-    pcl::fromROSMsg (*buffer_, *cloud);
-
-    // Create the filtering object
-    pcl::VoxelGrid<pcl::PointXYZRGB> sor;
-    sor.setInputCloud (cloud);
-    sor.setLeafSize (0.02, 0.02, 0.02);
-    sor.filter (*cloud_out);
-
-    cloud_filtered->points.resize (cloud_out->points.size ());
-    cloud_filtered->header = cloud_out->header;
-    cloud_filtered->width = cloud_out->width;
-    cloud_filtered->height = cloud_out->height;
-
-
-    boost::mt19937 rng;
-    rng.seed (static_cast<unsigned int> (time (0)));
-    boost::normal_distribution<> nd (0, standard_deviation);
-    boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > var_nor (rng, nd);
-
-    for (size_t i = 0; i < cloud_out->points.size (); ++i)
+    if(demo_)
     {
-      cloud_filtered->points[i].x = cloud_out->points[i].x + static_cast<float> (var_nor ());
-      cloud_filtered->points[i].y = cloud_out->points[i].y + static_cast<float> (var_nor ());
-      cloud_filtered->points[i].z = cloud_out->points[i].z + static_cast<float> (var_nor ());
-      cloud_filtered->points[i].r = cloud_out->points[i].r;
-      cloud_filtered->points[i].g = cloud_out->points[i].g;
-      cloud_filtered->points[i].b = cloud_out->points[i].b;
+      pcl_pub_.publish(buffer_);
     }
 
+    else
+    {
+      // Add noise to buffer Point Cloud
+      pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
+      pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZRGB>);
+      pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_out (new pcl::PointCloud<pcl::PointXYZRGB>);
+      sensor_msgs::PointCloud2::Ptr noisy_buffer_ (new sensor_msgs::PointCloud2);
 
-    *cloud_out = *cloud_filtered + *cloud;
+      pcl::fromROSMsg (*buffer_, *cloud);
 
-    pcl::toROSMsg (*cloud_out, *noisy_buffer_);
+      // Create the filtering object
+      pcl::VoxelGrid<pcl::PointXYZRGB> sor;
+      sor.setInputCloud (cloud);
+      sor.setLeafSize (0.02, 0.02, 0.02);
+      sor.filter (*cloud_out);
 
-    pcl_pub_.publish(noisy_buffer_);
+      cloud_filtered->points.resize (cloud_out->points.size ());
+      cloud_filtered->header = cloud_out->header;
+      cloud_filtered->width = cloud_out->width;
+      cloud_filtered->height = cloud_out->height;
+
+
+      boost::mt19937 rng;
+      rng.seed (static_cast<unsigned int> (time (0)));
+      boost::normal_distribution<> nd (0, standard_deviation);
+      boost::variate_generator<boost::mt19937&, boost::normal_distribution<> > var_nor (rng, nd);
+
+      for (size_t i = 0; i < cloud_out->points.size (); ++i)
+      {
+        cloud_filtered->points[i].x = cloud_out->points[i].x + static_cast<float> (var_nor ());
+        cloud_filtered->points[i].y = cloud_out->points[i].y + static_cast<float> (var_nor ());
+        cloud_filtered->points[i].z = cloud_out->points[i].z + static_cast<float> (var_nor ());
+        cloud_filtered->points[i].r = cloud_out->points[i].r;
+        cloud_filtered->points[i].g = cloud_out->points[i].g;
+        cloud_filtered->points[i].b = cloud_out->points[i].b;
+      }
+
+
+      *cloud_out = *cloud_filtered + *cloud;
+
+      pcl::toROSMsg (*cloud_out, *noisy_buffer_);
+
+      pcl_pub_.publish(noisy_buffer_);
+    }
   }
 };  // End of class CloudTransformer
 
