@@ -2,7 +2,7 @@
   <!--Include description and control launch files-->
   <include file="$(find pr2_robot)/launch/robot_description.launch"/>
   <include file="$(find pr2_robot)/launch/robot_control.launch"/>
-	<include file="$(find pr2_moveit)/launch/pr2_moveit.launch"/>
+  <include file="$(find pr2_moveit)/launch/pr2_moveit.launch"/>
 
   <!--Launch a gazebo world-->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
