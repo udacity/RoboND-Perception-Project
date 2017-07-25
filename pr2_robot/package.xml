@@ -58,6 +58,7 @@
   <run_depend>effort_controllers</run_depend>
   <run_depend>position_controllers</run_depend>
   <run_depend>gazebo_plugins</run_depend>
+	<run_depend>gazebo_grasp_plugin</run_depend>
   <run_depend>gazebo_ros</run_depend>
   <run_depend>gazebo_ros_control</run_depend>
   <run_depend>interactive_markers</run_depend>

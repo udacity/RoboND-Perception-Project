@@ -19,6 +19,7 @@ PR2PickPlace::PR2PickPlace(ros::NodeHandle nh)
     left_gripper_group(LEFT_GRIPPER_GROUP)
 {
   client = nh.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
+  grasp_client = nh.serviceClient<pr2_robot::Grasp>("/get_grasp");
 
   // Pointer to JointModelGroup for improved performance.
   right_joint_model_group =
@@ -110,10 +111,23 @@ bool PR2PickPlace::Routine(pr2_robot::PickPlace::Request &req,
 
   //Is pick_pose close to actual object pose
   gazebo_msgs::GetModelState srv;
+  pr2_robot::Grasp grasp_srv;
   geometry_msgs::Pose act_obj_pose, place_pose, grasp_pose;
 
   place_pose = req.place_pose;
-  grasp_pose = req.grasp_pose;
+
+  grasp_srv.request.object_name = req.object_name;
+  grasp_srv.request.test_scene_num = req.test_scene_num;
+
+  if (grasp_client.call(grasp_srv))
+  {
+    grasp_pose = grasp_srv.response.grasp_pose;
+  }
+  else
+  {
+    ROS_ERROR("Failed to call get_grasp service ");
+    return 1;
+  }
 
   srv.request.model_name = req.object_name.data;
   srv.request.relative_entity_name = "world";
@@ -396,8 +410,8 @@ bool PR2PickPlace::OperateLeftGripper(const bool &close_gripper)
   // Set finger joint values
   if (close_gripper)
   {
-    gripper_joint_positions[0] = 0.03;
-    gripper_joint_positions[1] = 0.03;
+    gripper_joint_positions[0] = 0.035;
+    gripper_joint_positions[1] = 0.035;
   }
   else
   {

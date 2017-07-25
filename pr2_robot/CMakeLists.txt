@@ -17,11 +17,12 @@ find_package(catkin REQUIRED COMPONENTS
 	pcl_ros
 	geometric_shapes
 	gazebo_msgs
+	gazebo_grasp_plugin
 	moveit_visual_tools
-  	roscpp
-  	rospy
-  	roslint
-  	sensor_msgs
+  roscpp
+  rospy
+  roslint
+  sensor_msgs
 )
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED)
@@ -70,6 +71,7 @@ find_package(Boost REQUIRED)
 add_service_files(
   FILES
   PickPlace.srv
+	Grasp.srv
 )
 
 ## Generate actions in the 'action' folder

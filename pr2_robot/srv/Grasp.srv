@@ -1,0 +1,6 @@
+# request
+std_msgs/String object_name
+std_msgs/Int32 test_scene_num
+---
+# response
+geometry_msgs/Pose grasp_pose

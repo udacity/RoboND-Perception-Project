@@ -34,6 +34,7 @@
 
 #include <eigen_conversions/eigen_msg.h>
 #include <pr2_robot/PickPlace.h>
+#include <pr2_robot/Grasp.h>
 #include <tf/tf.h>
 
 class PR2PickPlace
@@ -48,7 +49,7 @@ public:
 private:
   ros::NodeHandle nh_;
 
-  ros::ServiceClient client;
+  ros::ServiceClient client, grasp_client;
 
   std::vector<geometry_msgs::Pose> grasp_list;
   bool left_success, right_success;
