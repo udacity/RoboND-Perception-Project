@@ -11,7 +11,7 @@
   <visual>
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="package://sensor_stick/meshes/asus_xtion.dae"/>
+      <mesh filename="package://pr2_robot/models/asus_xtion.dae"/>
     </geometry>
   </visual>
   <inertial>
