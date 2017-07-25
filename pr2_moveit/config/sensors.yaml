@@ -1,6 +1,6 @@
 sensors:
   - sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater
-    point_cloud_topic: /pr2/world/points #replace with an appropriate topic
+    point_cloud_topic: /pr2/3d_map/points #replace with another topic and observer changes in collision map
     max_range: 2.0
     frame_subsample: 1
     point_subsample: 1
