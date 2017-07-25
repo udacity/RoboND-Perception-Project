@@ -1,0 +1,4 @@
+<launch>
+	<include file="$(find pr2_moveit)/launch/move_group.launch"/>
+	<include file="$(find pr2_moveit)/launch/filter.launch"/>
+</launch>

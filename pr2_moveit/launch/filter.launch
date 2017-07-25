@@ -7,7 +7,7 @@
     <remap from="~output" to="/pr2/voxel_grid/points" />
     <rosparam>
       filter_limit_negative: False
-      leaf_size: 0.01
+      leaf_size: 0.02
     </rosparam>
   </node>
 
@@ -28,8 +28,8 @@
     <remap from="~output" to="/pr2/passthrough/points" />
     <rosparam>
       filter_field_name: z
-      filter_limit_min: 0.605
-      filter_limit_max: 1.5
+      filter_limit_min: 0.6
+      filter_limit_max: 0.74
       filter_limit_negative: False
     </rosparam>
   </node>

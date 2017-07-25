@@ -38,7 +38,7 @@
        <pointCloudTopicName>/camera/depth_registered/points</pointCloudTopicName>
        <frameName>camera_rgb_optical_frame</frameName>
        <pointCloudCutoff>0.5</pointCloudCutoff>
-       <pointCloudCutoffMax>3.0</pointCloudCutoffMax>
+       <pointCloudCutoffMax>4.5</pointCloudCutoffMax>
        <CxPrime>0</CxPrime>
        <Cx>0</Cx>
        <Cy>0</Cy>

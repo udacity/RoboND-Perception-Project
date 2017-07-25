@@ -180,7 +180,7 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
   qt = RPYToQuaternion(0, 0, -0.79);
   target_mesh_pose.position.x = 0.54;
   target_mesh_pose.position.y = -0.24;
-  target_mesh_pose.position.z = 0.61;
+  target_mesh_pose.position.z = 0.63;
   target_mesh_pose.orientation.w = qt.getW();
   target_mesh_pose.orientation.x = qt.getX();
   target_mesh_pose.orientation.y = qt.getY();
@@ -190,7 +190,7 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
   qt = RPYToQuaternion(0, 0, -1.35);
   target_mesh_pose.position.x = 0.56;
   target_mesh_pose.position.y = 0;
-  target_mesh_pose.position.z = 0.61;
+  target_mesh_pose.position.z = 0.63;
   target_mesh_pose.orientation.w = qt.getW();
   target_mesh_pose.orientation.x = qt.getX();
   target_mesh_pose.orientation.y = qt.getY();
@@ -200,7 +200,7 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
   qt = RPYToQuaternion(0, 0, 0);
   target_mesh_pose.position.x = 0.46;
   target_mesh_pose.position.y = 0.22;
-  target_mesh_pose.position.z = 0.61;
+  target_mesh_pose.position.z = 0.63;
   target_mesh_pose.orientation.w = qt.getW();
   target_mesh_pose.orientation.x = qt.getX();
   target_mesh_pose.orientation.y = qt.getY();

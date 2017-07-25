@@ -2,21 +2,19 @@
   <!--Include description and control launch files-->
   <include file="$(find pr2_robot)/launch/robot_description.launch"/>
   <include file="$(find pr2_robot)/launch/robot_control.launch"/>
-  <include file="$(find pr2_moveit)/launch/move_group.launch"/>
-  <include file="$(find pr2_robot)/launch/filter.launch"/>
+	<include file="$(find pr2_moveit)/launch/pr2_moveit.launch"/>
 
   <!--Launch a gazebo world-->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find pr2_robot)/worlds/demo.world"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="paused" value="false"/>
-    <arg name="gui" value="true"/>
-    <arg name="headless" value="false"/>
+    <arg name="gui" value="false"/>
+    <arg name="headless" value="true"/>
     <arg name="debug" value="false"/>
   </include>
 
   <!--spawn a robot in gazebo world-->
-  <!--arg name="ROBOT_INITIAL_JOINTS" value="-J right_shoulder_pan_joint -1.5 -unpause"/-->
   <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false"
     output="screen" args="-urdf -param robot_description
     -x 0 -y -0 -z 0 -R 0 -P 0 -Y 0 -model pr2 "/>
