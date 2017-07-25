@@ -39,7 +39,7 @@ Add following to your .bashrc file
 export GAZEBO_MODEL_PATH=~/catkin_ws/src/RoboND-Perception-Project/pr2_robot/models:$GAZEBO_MODEL_PATH
 ```
 
-If you haven’t already, following line can be added to your .bashrc to auto-source all new  terminals
+If you haven’t already, following line can be added to your .bashrc to auto-source all new terminals
 ```
 source ~/catkin_ws/devel/setup.bash
 ```
@@ -58,7 +58,7 @@ Once Gazebo is up and running, make sure you see following in the gazebo world:
 - Dropboxes on either sides of the robot
 
 
-If any of these items are missing, please report as an issue.
+If any of these items are missing, please report as an [issue](https://waffle.io/udacity/robotics-nanodegree-issues).
 
 Proceed through the demo by pressing the ‘Next’ button on the rviz window when a prompt appears in your active terminal
 
