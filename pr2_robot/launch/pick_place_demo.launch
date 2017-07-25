@@ -22,8 +22,6 @@
     -x 0 -y -0 -z 0 -R 0 -P 0 -Y 0 -model pr2 "/>
 
   <!--PR2 motion node-->
-  <node name="pr2_perception" pkg="pr2_robot" type="perception.py"
-    respawn="false" output="screen"/>
   <node name="pr2_motion" pkg="pr2_robot" type="pr2_motion" respawn="false"
     output="screen"/>
   <node name="pr2_cloud_transformer" pkg="pr2_robot" type="pr2_cloud_transformer"
