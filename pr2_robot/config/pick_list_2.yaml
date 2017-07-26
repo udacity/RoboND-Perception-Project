@@ -1,0 +1,11 @@
+object_list:
+  - name: biscuits
+    group: green
+  - name: soap
+    group: green
+  - name: book
+    group: red
+  - name: soap2
+    group: red
+  - name: glue
+    group: red

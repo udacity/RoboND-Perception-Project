@@ -29,9 +29,9 @@ grasp_list:
           y: 0.693
           z: -0.140
           w: 0.693
-  - gluten:
+  - biscuits:
         position:
-          x: 0.56
+          x: 0.57
           y: -0.24
           z: 0.97
         orientation:
@@ -39,7 +39,7 @@ grasp_list:
           y: 0.5
           z: -0.5
           w: 0.5
-    free:
+    soap:
         position:
           x: 0.58
           y: -0.02
@@ -49,13 +49,33 @@ grasp_list:
           y: 0.658
           z: 0.259
           w: 0.658
-    food:
+    book:
         position:
-          x: 0.46
-          y: 0.22
+          x: 0.59
+          y: 0.28
           z: 0.86
         orientation:
           x: 0.140
           y: 0.693
           z: -0.140
           w: 0.693
+    soap2:
+       position:
+         x: 0.46
+         y: 0.22
+         z: 0.93
+       orientation:
+         x: -0.259
+         y: 0.658
+         z: 0.259
+         w: 0.658
+    glue:
+       position:
+         x: 0.634
+         y: 0.13
+         z: 0.86
+       orientation:
+         x: 0.140
+         y: 0.693
+         z: -0.140
+         w: 0.693
