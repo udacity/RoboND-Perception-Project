@@ -80,7 +80,7 @@ $ roslaunch pr2_robot pick_place_project.launch
 6. Apply Euclidean clustering to create separate clusters for individual items.
 7. Now read the contents of the pick_list.yaml file. For each object perform object recognition. Obtain the centroid of the set of points that belong to that specific object.
 8. Remember the point cloud from step-4? You now must subtract the recognized object points from that point cloud and publish it over /pr2/3d_map/points topic. This topic is read by Moveit!, which essentially treats the table and all objects on top of it except the recognized target as collidable map elements, allowing the robot to plan its trajectory.
-9. Rotate the robot to generate collision map of table sides. This can be accomplished by publishing joint angle value(in radians) to [`insert topic name here`] 
+9. Rotate the robot to generate collision map of table sides. This can be accomplished by publishing joint angle value(in radians) to `/pr2/world_joint_controller/command`
 10. Rotate the robot back to its original state.
 11. Create a ROS Client for the “pick_place_routine” rosservice. Checkout the [PickPlace.srv](https://github.com/udacity/RoboND-Perception-Project/tree/master/pr2_robot/srv) file to find out what arguments you must pass to this service.
 12. If everything was done correctly, the selected arm will perform pick and place operation and display trajectory in the rviz window
