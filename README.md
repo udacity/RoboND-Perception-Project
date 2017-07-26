@@ -62,7 +62,7 @@ If any of these items are missing, please report as an [issue](https://waffle.io
 
 Proceed through the demo by pressing the ‘Next’ button on the rviz window when a prompt appears in your active terminal
 
-The demo ends when the robot has successfully picked and placed all objects into respective dropboxes (or thrown objects away in frustration)
+The demo ends when the robot has successfully picked and placed all objects into respective dropboxes (though sometimes the robot gets excited and throws objects across the room!)
 
 Close the terminal window using **ctrl+c** before restarting the demo.
 
