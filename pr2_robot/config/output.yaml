@@ -1,0 +1,48 @@
+# This is an example output file. You need to submit three of these, one for each tabletop setup.
+object_list:
+- test_scene_num: 1
+  arm_name: left
+  object_name: car
+  pick_pose:
+    position:
+      x: 0
+      y: 0
+      z: 0
+    orientation:
+      x: 0
+      y: 0
+      z: 0
+      w: 0
+  place_pose:
+    position:
+      x: 0
+      y: 0
+      z: 0
+    orientation:
+      x: 0
+      y: 0
+      z: 0
+      w: 0
+- test_scene_num: 1
+  arm_name: right
+  object_name: battery
+  pick_pose:
+    position:
+      x: 0
+      y: 0
+      z: 0
+    orientation:
+      x: 0
+      y: 0
+      z: 0
+      w: 0
+  place_pose:
+    position:
+      x: 0
+      y: 0
+      z: 0
+    orientation:
+      x: 0
+      y: 0
+      z: 0
+      w: 0
