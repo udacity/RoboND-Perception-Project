@@ -1,6 +1,6 @@
 <launch>
   <!-- Set the file describing which sensor(s) to use to build the octomap  -->
-  <arg name="moveit_octomap_sensor_params_file" default="$(find pr2_moveit)/config/sensors.yaml" />
+  <arg name="moveit_octomap_sensor_params_file" default="$(find pr2_robot)/config/sensors.yaml" />
 
   <!-- Params for the octomap monitor -->
   <param name="octomap_frame" type="string" value="world" />
