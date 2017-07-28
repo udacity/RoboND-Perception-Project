@@ -80,25 +80,25 @@
       <heading_deg>0</heading_deg>
     </spherical_coordinates>
     <state world_name='default'>
-      <sim_time>1035 418000000</sim_time>
-      <real_time>117 975078768</real_time>
-      <wall_time>1500909728 594854492</wall_time>
-      <iterations>114196</iterations>
+      <sim_time>1299 982000000</sim_time>
+      <real_time>138 212883467</real_time>
+      <wall_time>1501210048 861670565</wall_time>
+      <iterations>137377</iterations>
       <model name='biscuits'>
-        <pose frame=''>0.589639 -0.231884 0.612777 0.012668 -0.091014 -0.027104</pose>
+        <pose frame=''>0.590002 -0.230002 0.609995 1e-06 -3e-06 -5e-06</pose>
         <scale>1 1 1</scale>
         <link name='biscuits_link'>
-          <pose frame=''>0.589639 -0.231884 0.612777 0.012668 -0.091014 -0.027104</pose>
+          <pose frame=''>0.590002 -0.230002 0.609995 1e-06 -3e-06 -5e-06</pose>
           <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>-0.519486 -0.371942 0.551408 0.015158 0.017063 0.001374</acceleration>
-          <wrench>-0.041559 -0.029755 0.044113 0 -0 0</wrench>
+          <acceleration>0 0 -9.8 0 -0 0</acceleration>
+          <wrench>0 0 -0.98 0 -0 0</wrench>
         </link>
       </model>
       <model name='book'>
-        <pose frame=''>0.505226 0.071358 0.607376 0.056364 -0.00768 -1.73149</pose>
+        <pose frame=''>0.5 0.08 0.609992 3e-06 -1e-06 -1.76</pose>
         <scale>1 1 1</scale>
         <link name='book_link'>
-          <pose frame=''>0.505226 0.071358 0.607376 0.056364 -0.00768 -1.73149</pose>
+          <pose frame=''>0.5 0.08 0.609992 3e-06 -1e-06 -1.76</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 -9.8 0 -0 0</acceleration>
           <wrench>0 0 -0.784 0 -0 0</wrench>
@@ -124,14 +124,24 @@
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
+      <model name='eraser'>
+        <pose frame=''>0.599997 0.265533 0.615001 0.000277 -0.00046 -3e-06</pose>
+        <scale>1 1 1</scale>
+        <link name='eraser_link'>
+          <pose frame=''>0.599997 0.265533 0.615001 0.000277 -0.00046 -3e-06</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 -9.8 0 -0 0</acceleration>
+          <wrench>0 0 -0.98 0 -0 0</wrench>
+        </link>
+      </model>
       <model name='glue'>
-        <pose frame=''>0.62293 0.13393 0.606361 0.019723 -0.095939 -0.006008</pose>
+        <pose frame=''>0.619888 0.130072 0.6095 0.000155 0.000105 -0.000127</pose>
         <scale>1 1 1</scale>
         <link name='glue_link'>
-          <pose frame=''>0.62293 0.13393 0.606361 0.019723 -0.095939 -0.006008</pose>
+          <pose frame=''>0.619888 0.130072 0.6095 0.000155 0.000105 -0.000127</pose>
           <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>8e-06 3.1e-05 -9.5e-05 0.008422 -0.001896 0</acceleration>
-          <wrench>1e-06 2e-06 -8e-06 0 -0 0</wrench>
+          <acceleration>0 0 -9.8 0 -0 0</acceleration>
+          <wrench>0 0 -0.784 0 -0 0</wrench>
         </link>
       </model>
       <model name='ground_plane'>
@@ -174,24 +184,44 @@
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
+      <model name='snacks'>
+        <pose frame=''>0.417592 -0.361158 0.610019 0.016313 -0.027885 -0.000227</pose>
+        <scale>1 1 1</scale>
+        <link name='snacks_link'>
+          <pose frame=''>0.417592 -0.361158 0.610019 0.016313 -0.027885 -0.000227</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 -9.8 0 -0 0</acceleration>
+          <wrench>0 0 -0.784 0 -0 0</wrench>
+        </link>
+      </model>
       <model name='soap'>
-        <pose frame=''>0.675217 -0.005841 0.614988 -0.060775 -0.044745 0.087447</pose>
+        <pose frame=''>0.68 0 0.61 2e-06 -4e-06 0.1</pose>
         <scale>1 1 1</scale>
         <link name='soap_link'>
-          <pose frame=''>0.675217 -0.005841 0.614988 -0.060775 -0.044745 0.087447</pose>
+          <pose frame=''>0.68 0 0.61 2e-06 -4e-06 0.1</pose>
           <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>-3.9e-05 7.2e-05 -0.000537 -0.018043 -0.009787 0</acceleration>
-          <wrench>-3e-06 6e-06 -4.3e-05 0 -0 0</wrench>
+          <acceleration>0 0 -9.8 0 -0 0</acceleration>
+          <wrench>0 0 -0.784 0 -0 0</wrench>
         </link>
       </model>
       <model name='soap2'>
-        <pose frame=''>0.459447 -0.060331 0.609054 0.070597 -0.08928 -1.57091</pose>
+        <pose frame=''>0.460001 -0.049999 0.612493 -2e-05 2.1e-05 -1.57</pose>
         <scale>1 1 1</scale>
         <link name='soap2_link'>
-          <pose frame=''>0.459447 -0.060331 0.609054 0.070597 -0.08928 -1.57091</pose>
+          <pose frame=''>0.460001 -0.049999 0.612493 -2e-05 2.1e-05 -1.57</pose>
           <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>2e-06 -2e-06 -1e-05 -0.002226 -0.001765 0</acceleration>
-          <wrench>0 0 -1e-06 0 -0 0</wrench>
+          <acceleration>0 0 -9.8 0 -0 0</acceleration>
+          <wrench>0 0 -0.784 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='sticky_notes'>
+        <pose frame=''>0.449998 0.22 0.609998 -3e-06 -8e-06 0</pose>
+        <scale>1 1 1</scale>
+        <link name='sticky_notes_link'>
+          <pose frame=''>0.449998 0.22 0.609998 -3e-06 -8e-06 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 -9.8 0 -0 0</acceleration>
+          <wrench>0 0 -0.784 0 -0 0</wrench>
         </link>
       </model>
       <light name='sun'>
@@ -200,188 +230,11 @@
     </state>
     <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose frame=''>-0.630275 -0.02998 1.4198 0 0.562598 -0.018275</pose>
+        <pose frame=''>-1.43812 -0.039204 1.77247 -0 0.5226 -0.08228</pose>
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
       </camera>
     </gui>
-    <model name='soap'>
-      <link name='soap_link'>
-        <inertial>
-          <pose frame=''>0 0 0 0 -0 0</pose>
-          <mass>0.08</mass>
-          <inertia>
-            <ixx>1</ixx>
-            <ixy>0</ixy>
-            <ixz>0</ixz>
-            <iyy>1</iyy>
-            <iyz>0</iyz>
-            <izz>1</izz>
-          </inertia>
-        </inertial>
-        <visual name='soap_visual'>
-          <pose frame=''>0 0 0 0 -0 0</pose>
-          <material>
-            <script>
-              <uri>model://soap/materials/scripts</uri>
-              <uri>model://soap/materials/textures</uri>
-              <name>soap</name>
-            </script>
-          </material>
-          <geometry>
-            <mesh>
-              <uri>model://soap/meshes/soap.dae</uri>
-            </mesh>
-          </geometry>
-        </visual>
-        <collision name='soap_collision'>
-          <pose frame=''>0 0 0 0 -0 0</pose>
-          <geometry>
-            <mesh>
-              <uri>model://soap/meshes/soap.dae</uri>
-            </mesh>
-          </geometry>
-          <surface>
-            <friction>
-              <ode>
-                <mu>0.8</mu>
-                <mu2>0.8</mu2>
-              </ode>
-              <torsional>
-                <ode/>
-              </torsional>
-            </friction>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-          </surface>
-          <max_contacts>10</max_contacts>
-        </collision>
-        <self_collide>0</self_collide>
-        <kinematic>0</kinematic>
-      </link>
-      <pose frame=''>0.572521 -0.180395 0 0 -0 0</pose>
-    </model>
-    <model name='soap2'>
-      <link name='soap2_link'>
-        <inertial>
-          <pose frame=''>0 0 0 0 -0 0</pose>
-          <mass>0.08</mass>
-          <inertia>
-            <ixx>1</ixx>
-            <ixy>0</ixy>
-            <ixz>0</ixz>
-            <iyy>1</iyy>
-            <iyz>0</iyz>
-            <izz>1</izz>
-          </inertia>
-        </inertial>
-        <visual name='soap2_visual'>
-          <pose frame=''>0 0 0 0 -0 0</pose>
-          <material>
-            <script>
-              <uri>model://soap2/materials/scripts</uri>
-              <uri>model://soap2/materials/textures</uri>
-              <name>soap2</name>
-            </script>
-          </material>
-          <geometry>
-            <mesh>
-              <uri>model://soap2/meshes/soap2.dae</uri>
-            </mesh>
-          </geometry>
-        </visual>
-        <collision name='soap2_collision'>
-          <pose frame=''>0 0 0 0 -0 0</pose>
-          <geometry>
-            <mesh>
-              <uri>model://soap2/meshes/soap2.dae</uri>
-            </mesh>
-          </geometry>
-          <surface>
-            <friction>
-              <ode>
-                <mu>0.8</mu>
-                <mu2>0.8</mu2>
-              </ode>
-              <torsional>
-                <ode/>
-              </torsional>
-            </friction>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-          </surface>
-          <max_contacts>10</max_contacts>
-        </collision>
-        <self_collide>0</self_collide>
-        <kinematic>0</kinematic>
-      </link>
-      <pose frame=''>0.222278 0.28664 0 0 -0 0</pose>
-    </model>
-    <model name='biscuits'>
-      <link name='biscuits_link'>
-        <inertial>
-          <pose frame=''>0 0 0 0 -0 0</pose>
-          <mass>0.08</mass>
-          <inertia>
-            <ixx>1</ixx>
-            <ixy>0</ixy>
-            <ixz>0</ixz>
-            <iyy>1</iyy>
-            <iyz>0</iyz>
-            <izz>1</izz>
-          </inertia>
-        </inertial>
-        <visual name='biscuits_visual'>
-          <pose frame=''>0 0 0 0 -0 0</pose>
-          <material>
-            <script>
-              <uri>model://biscuits/materials/scripts</uri>
-              <uri>model://biscuits/materials/textures</uri>
-              <name>biscuits</name>
-            </script>
-          </material>
-          <geometry>
-            <mesh>
-              <uri>model://biscuits/meshes/biscuits.dae</uri>
-            </mesh>
-          </geometry>
-        </visual>
-        <collision name='biscuits_collision'>
-          <pose frame=''>0 0 0 0 -0 0</pose>
-          <geometry>
-            <mesh>
-              <uri>model://biscuits/meshes/biscuits.dae</uri>
-            </mesh>
-          </geometry>
-          <surface>
-            <friction>
-              <ode>
-                <mu>0.8</mu>
-                <mu2>0.8</mu2>
-                <fdir1>0 0 0</fdir1>
-                <slip1>0.01</slip1>
-                <slip2>0.01</slip2>
-              </ode>
-              <torsional>
-                <ode/>
-              </torsional>
-            </friction>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-          </surface>
-          <max_contacts>10</max_contacts>
-        </collision>
-        <self_collide>0</self_collide>
-        <kinematic>0</kinematic>
-      </link>
-      <pose frame=''>0.208644 -0.127738 0 0 -0 0</pose>
-    </model>
     <model name='dropbox'>
       <link name='link_0'>
         <pose frame=''>0 -0 0 0 0 -1.56873</pose>
@@ -865,6 +718,61 @@
       <allow_auto_disable>1</allow_auto_disable>
       <pose frame=''>0.21415 -0.916385 0 0 -0 0</pose>
     </model>
+    <model name='biscuits'>
+      <link name='biscuits_link'>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>1</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>1</iyy>
+            <iyz>0</iyz>
+            <izz>1</izz>
+          </inertia>
+        </inertial>
+        <visual name='biscuits_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <material>
+            <script>
+              <uri>model://biscuits/materials/scripts</uri>
+              <uri>model://biscuits/materials/textures</uri>
+              <name>biscuits</name>
+            </script>
+          </material>
+          <geometry>
+            <mesh>
+              <uri>model://biscuits/meshes/biscuits.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='biscuits_collision'>
+          <pose frame=''>0.015 0.01 0.075 0 -0 2.2</pose>
+          <geometry>
+            <box>
+              <size>0.19 0.06 0.15</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>0.266598 0.321459 0 0 -0 0</pose>
+    </model>
     <model name='book'>
       <link name='book_link'>
         <inertial>
@@ -895,33 +803,30 @@
           </geometry>
         </visual>
         <collision name='book_collision'>
-          <pose frame=''>0 0 0 0 -0 0</pose>
+          <pose frame=''>0 0 0.103 0 -0 2.3</pose>
           <geometry>
-            <mesh>
-              <uri>model://book/meshes/book.dae</uri>
-            </mesh>
+            <box>
+              <size>0.13 0.02 0.206</size>
+            </box>
           </geometry>
+          <max_contacts>10</max_contacts>
           <surface>
-            <friction>
-              <ode>
-                <mu>0.8</mu>
-                <mu2>0.8</mu2>
-              </ode>
-              <torsional>
-                <ode/>
-              </torsional>
-            </friction>
             <contact>
               <ode/>
             </contact>
             <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
           </surface>
-          <max_contacts>10</max_contacts>
         </collision>
         <self_collide>0</self_collide>
         <kinematic>0</kinematic>
       </link>
-      <pose frame=''>0.770089 0.316654 0 0 -0 0</pose>
+      <pose frame=''>0.24548 0.048171 0 0 -0 0</pose>
     </model>
     <model name='glue'>
       <link name='glue_link'>
@@ -953,33 +858,305 @@
           </geometry>
         </visual>
         <collision name='glue_collision'>
-          <pose frame=''>0 0 0 0 -0 0</pose>
+          <pose frame=''>0 0 0.067 0 0 -0.95</pose>
           <geometry>
-            <mesh>
-              <uri>model://glue/meshes/glue.dae</uri>
-            </mesh>
+            <box>
+              <size>0.054 0.032 0.133</size>
+            </box>
           </geometry>
+          <max_contacts>10</max_contacts>
           <surface>
-            <friction>
-              <ode>
-                <mu>0.8</mu>
-                <mu2>0.8</mu2>
-              </ode>
-              <torsional>
-                <ode/>
-              </torsional>
-            </friction>
             <contact>
               <ode/>
             </contact>
             <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
           </surface>
-          <max_contacts>10</max_contacts>
         </collision>
         <self_collide>0</self_collide>
         <kinematic>0</kinematic>
       </link>
-      <pose frame=''>0.77192 0.190818 0 0 -0 0</pose>
+      <pose frame=''>0.313371 -0.156509 0 0 -0 0</pose>
+    </model>
+    <model name='soap'>
+      <link name='soap_link'>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.08</mass>
+          <inertia>
+            <ixx>1</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>1</iyy>
+            <iyz>0</iyz>
+            <izz>1</izz>
+          </inertia>
+        </inertial>
+        <visual name='soap_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <material>
+            <script>
+              <uri>model://soap/materials/scripts</uri>
+              <uri>model://soap/materials/textures</uri>
+              <name>soap</name>
+            </script>
+          </material>
+          <geometry>
+            <mesh>
+              <uri>model://soap/meshes/soap.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='soap_collision'>
+          <pose frame=''>0.02 0.002 0.05 0 0 -1.05</pose>
+          <geometry>
+            <box>
+              <size>0.14 0.065 0.1</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>0.088898 0.212928 0 0 -0 0</pose>
+    </model>
+    <model name='soap2'>
+      <link name='soap2_link'>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.08</mass>
+          <inertia>
+            <ixx>1</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>1</iyy>
+            <iyz>0</iyz>
+            <izz>1</izz>
+          </inertia>
+        </inertial>
+        <visual name='soap2_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <material>
+            <script>
+              <uri>model://soap2/materials/scripts</uri>
+              <uri>model://soap2/materials/textures</uri>
+              <name>soap2</name>
+            </script>
+          </material>
+          <geometry>
+            <mesh>
+              <uri>model://soap2/meshes/soap2.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='soap2_collision'>
+          <pose frame=''>-0.002 0.00502 0.05 0 0 -1</pose>
+          <geometry>
+            <box>
+              <size>0.065 0.04 0.105</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>0.137813 -0.055588 0 0 -0 0</pose>
+    </model>
+    <model name='sticky_notes'>
+      <link name='sticky_notes_link'>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.08</mass>
+          <inertia>
+            <ixx>1</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>1</iyy>
+            <iyz>0</iyz>
+            <izz>1</izz>
+          </inertia>
+        </inertial>
+        <visual name='sticky_notes_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <material>
+            <script>
+              <uri>model://sticky_notes/materials/scripts</uri>
+              <uri>model://sticky_notes/materials/textures</uri>
+              <name>sticky_notes</name>
+            </script>
+          </material>
+          <geometry>
+            <mesh>
+              <uri>model://sticky_notes/meshes/sticky_notes.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='sticky_notes_collision'>
+          <pose frame=''>0 0 0.06 0 -0 0.68</pose>
+          <geometry>
+            <box>
+              <size>0.043 0.055 0.12</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>0.123077 -0.229482 0 0 -0 0</pose>
+    </model>
+    <model name='eraser'>
+      <link name='eraser_link'>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>1</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>1</iyy>
+            <iyz>0</iyz>
+            <izz>1</izz>
+          </inertia>
+        </inertial>
+        <visual name='eraser_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <material>
+            <script>
+              <uri>model://eraser/materials/scripts</uri>
+              <uri>model://eraser/materials/textures</uri>
+              <name>eraser</name>
+            </script>
+          </material>
+          <geometry>
+            <mesh>
+              <uri>model://eraser/meshes/eraser.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='eraser_collision'>
+          <pose frame=''>0.02 0.02 0.02 0 0 -0.95</pose>
+          <geometry>
+            <box>
+              <size>0.135 0.06 0.05</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>0.973615 0.265532 0 0 -0 0</pose>
+    </model>
+    <model name='snacks'>
+      <link name='snacks_link'>
+        <inertial>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <mass>0.08</mass>
+          <inertia>
+            <ixx>1</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>1</iyy>
+            <iyz>0</iyz>
+            <izz>1</izz>
+          </inertia>
+        </inertial>
+        <visual name='snacks_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <material>
+            <script>
+              <uri>model://snacks/materials/scripts</uri>
+              <uri>model://snacks/materials/textures</uri>
+              <name>snacks</name>
+            </script>
+          </material>
+          <geometry>
+            <mesh>
+              <uri>model://snacks/meshes/snacks.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <collision name='snacks_collision'>
+          <pose frame=''>0.04 0.02 0.117 0 -0 2.1</pose>
+          <geometry>
+            <box>
+              <size>0.165 0.06 0.235</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>0.503163 -0.426595 0 0 -0 0</pose>
     </model>
   </world>
 </sdf>

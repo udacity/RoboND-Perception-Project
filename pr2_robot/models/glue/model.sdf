@@ -26,20 +26,12 @@
 
 
       <collision name="glue_collision">
-        <pose>0 0 0 0 0 0</pose>
+        <pose>0 0 0.067 0 0 -0.95</pose>
         <geometry>
-          <mesh>
-            <uri>model://glue/meshes/glue.dae</uri>
-          </mesh>
+          <box>
+            <size>0.054 0.032 0.133</size>
+          </box>
         </geometry>
-        <surface>
-          <friction>
-            <ode>
-              <mu>0.8</mu>
-              <mu2>0.8</mu2>
-            </ode>
-          </friction>
-        </surface>
       </collision>
 
     </link>

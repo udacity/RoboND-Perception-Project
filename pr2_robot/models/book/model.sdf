@@ -26,20 +26,12 @@
 
 
       <collision name="book_collision">
-        <pose>0 0 0 0 0 0</pose>
+        <pose>0 0 0.103 0 0 2.3</pose>
         <geometry>
-          <mesh>
-            <uri>model://book/meshes/book.dae</uri>
-          </mesh>
+          <box>
+            <size>0.13 0.02 0.206</size>
+          </box>
         </geometry>
-        <surface>
-          <friction>
-            <ode>
-              <mu>0.8</mu>
-              <mu2>0.8</mu2>
-            </ode>
-          </friction>
-        </surface>
       </collision>
 
     </link>
