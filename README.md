@@ -74,10 +74,6 @@ The demo ends when the robot has successfully picked and placed all objects into
 
 Close the terminal window using **ctrl+c** before restarting the demo.
 
-You can launch the actual project by
-```sh
-$ roslaunch pr2_robot pick_place_project.launch
-```
 
 # Steps to complete the project:
 1. Launch the project demo to get an overview of the project itself.
@@ -93,6 +89,11 @@ $ roslaunch pr2_robot pick_place_project.launch
 11. Create a ROS Client for the “pick_place_routine” rosservice. Checkout the [PickPlace.srv](https://github.com/udacity/RoboND-Perception-Project/tree/master/pr2_robot/srv) file to find out what arguments you must pass to this service.
 12. If everything was done correctly, the selected arm will perform pick and place operation and display trajectory in the rviz window
 13. Placing all the objects in their respective dropoff box signifies successful completion of this project. 
+
+Once you have a working implementation you can launch the actual project by
+```sh
+$ roslaunch pr2_robot pick_place_project.launch
+```
 
 For all the step-by-step details on how to complete this project see the [RoboND 3D Perception Project Lesson]()
 Note: The robot is a bit moody at times and might leave objects on the table or fling them across the room :D
