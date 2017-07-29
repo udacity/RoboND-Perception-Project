@@ -1,11 +1,11 @@
-# Project Brief
-Before starting any work on this project, please complete all steps for Exercise 1, 2, 3. At the end of ex-3 you have a pipeline that can identify points that belong to a specific object.
+# 3D Perception
+Before starting any work on this project, please complete all steps for [Exercise 1, 2 and 3](https://github.com/udacity/RoboND-Perception-Exercises). At the end of Exercise-3 you have a pipeline that can identify points that belong to a specific object.
 
 In this project, you must assimilate your work from previous exercises to successfully complete a tabletop pick and place operation using PR2.
 
 The PR2 has been outfitted with an RGB-D sensor much like the one you used in previous exercises. This sensor however is a bit noisy, much like real sensors.
 
-Given the cluttered tabletop scenario, you must implement a perception pipeline using your work from Ex-1,2,3 to identify target objects from a so-called “Pick-List” in that particular order, pick up those objects and place them in corresponding dropboxes.
+Given the cluttered tabletop scenario, you must implement a perception pipeline using your work from Exercises 1,2 and 3 to identify target objects from a so-called “Pick-List” in that particular order, pick up those objects and place them in corresponding dropboxes.
 
 # Project Setup
 For this setup, catkin_ws is the name of active ROS Workspace, if your workspace name is different, change the commands accordingly
@@ -48,6 +48,10 @@ To run the demo:
 ```sh
 $ roslaunch pr2_robot pick_place_demo.launch
 ```
+![demo-1](https://user-images.githubusercontent.com/20687560/28748231-46b5b912-7467-11e7-8778-3095172b7b19.png)
+
+
+
 Once Gazebo is up and running, make sure you see following in the gazebo world:
 - Robot
 
@@ -86,5 +90,6 @@ $ roslaunch pr2_robot pick_place_project.launch
 12. If everything was done correctly, the selected arm will perform pick and place operation and display trajectory in the rviz window
 13. Placing all the objects in their respective dropoff box signifies successful completion of this project. 
 
+For all the step-by-step details on how to complete this project see the [RoboND 3D Perception Project Lesson]()
 Note: The robot is a bit moody at times and might leave objects on the table or fling them across the room :D
 As long as your pipeline performs succesful recognition, your project will be considered successful even if the robot feels otherwise!
