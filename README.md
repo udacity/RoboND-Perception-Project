@@ -62,9 +62,13 @@ Once Gazebo is up and running, make sure you see following in the gazebo world:
 - Dropboxes on either sides of the robot
 
 
-If any of these items are missing, please report as an [issue](https://waffle.io/udacity/robotics-nanodegree-issues).
+If any of these items are missing, please report as an issue on [the waffle board](https://waffle.io/udacity/robotics-nanodegree-issues).
 
-Proceed through the demo by pressing the ‘Next’ button on the rviz window when a prompt appears in your active terminal
+In your RViz window, you should see the robot and a partial collision map displayed:
+
+![demo-2](https://user-images.githubusercontent.com/20687560/28748286-9f65680e-7468-11e7-83dc-f1a32380b89c.png)
+
+Proceed through the demo by pressing the ‘Next’ button on the RViz window when a prompt appears in your active terminal
 
 The demo ends when the robot has successfully picked and placed all objects into respective dropboxes (though sometimes the robot gets excited and throws objects across the room!)
 
