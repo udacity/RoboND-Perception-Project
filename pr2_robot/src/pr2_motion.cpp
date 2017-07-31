@@ -430,7 +430,7 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "pr2_motion");
   ros::NodeHandle nh;
-  ros::AsyncSpinner spinner(1);
+  ros::AsyncSpinner spinner(4);
   spinner.start();
   PR2Motion pr2_motion(nh);
   return 0;

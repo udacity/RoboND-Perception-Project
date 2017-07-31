@@ -2,7 +2,7 @@
   <!--Include description and control launch files-->
   <include file="$(find pr2_robot)/launch/robot_description.launch"/>
   <include file="$(find pr2_robot)/launch/robot_control.launch"/>
-  <include file="$(find pr2_moveit)/launch/pr2_moveit.launch"/>
+  <!--include file="$(find pr2_moveit)/launch/pr2_moveit.launch"/-->
 
   <!--Launch a gazebo world-->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -19,16 +19,10 @@
     output="screen" args="-urdf -param robot_description
     -x 0 -y -0 -z 0 -R 0 -P 0 -Y 0 -model pr2 "/>
 
-  <!--PR2 motion node-->
-  <node name="pr2_motion" pkg="pr2_robot" type="pr2_motion" respawn="false"
-    output="screen"/>
-  <node name="pr2_cloud_transformer" pkg="pr2_robot" type="pr2_cloud_transformer"
+	<!--PR2 cloud_transformer node-->
+	<node name="pr2_cloud_transformer" pkg="pr2_robot" type="pr2_cloud_transformer"
     respawn="false" output="screen">
     <param name="demo" type="bool" value="true"/>
   </node>
-
-  <!-- launch rviz-->
-  <node name="$(anon rviz)" pkg="rviz" type="rviz" respawn="false"
-    output="screen" args="-d $(find pr2_robot)/config/pr2.rviz"/>
 
 </launch>
