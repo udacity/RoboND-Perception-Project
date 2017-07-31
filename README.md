@@ -46,7 +46,9 @@ source ~/catkin_ws/devel/setup.bash
 
 To run the demo:
 ```sh
-$ roslaunch pr2_robot pick_place_demo.launch
+$ cd ~/catkin_ws/src/RoboND-Perception-Project/pr2_robot/scripts
+$ chmod u+x pr2_safe_spawner.sh
+$ ./pr2_safe_spawner.sh
 ```
 ![demo-1](https://user-images.githubusercontent.com/20687560/28748231-46b5b912-7467-11e7-8778-3095172b7b19.png)
 
@@ -72,7 +74,7 @@ Proceed through the demo by pressing the ‘Next’ button on the RViz window wh
 
 The demo ends when the robot has successfully picked and placed all objects into respective dropboxes (though sometimes the robot gets excited and throws objects across the room!)
 
-Close the terminal window using **ctrl+c** before restarting the demo.
+Close all active terminal windows using **ctrl+c** before restarting the demo.
 
 
 # Steps to complete the project:
