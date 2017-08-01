@@ -76,26 +76,29 @@ The demo ends when the robot has successfully picked and placed all objects into
 
 Close all active terminal windows using **ctrl+c** before restarting the demo.
 
-
-# Steps to complete the project:
-1. Launch the project demo to get an overview of the project itself.
-2. Write a ros node and subscribe to /pr2/world/points topic. This topic contains noisy point cloud data that you must work with. 
-3. Remove noise from the point cloud using Outlier Removal filter
-4. Use voxelgrid downsampling and passthrough filter. Keep this result handy, as it will be used in later steps.
-5. Use RANSAC plane fitting to remove points that belong to the table.
-6. Apply Euclidean clustering to create separate clusters for individual items.
-7. Now read the contents of the pick_list.yaml file. For each object perform object recognition. Obtain the centroid of the set of points that belong to that specific object.
-8. Remember the point cloud from step-4? You now must subtract the recognized object points from that point cloud and publish it over /pr2/3d_map/points topic. This topic is read by Moveit!, which essentially treats the table and all objects on top of it except the recognized target as collidable map elements, allowing the robot to plan its trajectory.
-9. Rotate the robot to generate collision map of table sides. This can be accomplished by publishing joint angle value(in radians) to `/pr2/world_joint_controller/command`
-10. Rotate the robot back to its original state.
-11. Create a ROS Client for the “pick_place_routine” rosservice. Checkout the [PickPlace.srv](https://github.com/udacity/RoboND-Perception-Project/tree/master/pr2_robot/srv) file to find out what arguments you must pass to this service.
-12. If everything was done correctly, the selected arm will perform pick and place operation and display trajectory in the rviz window
-13. Placing all the objects in their respective dropoff box signifies successful completion of this project. 
-
-Once you have a working implementation you can launch the actual project by
+You can launch the project scenario like this:
 ```sh
 $ roslaunch pr2_robot pick_place_project.launch
 ```
+# Required Steps for a Passing Submission:
+1. Extract features and train an SVM model on new objects (see `pick_list_*.yaml` in `/pr2_robot/config/` for the list of models you'll be trying to identify). 
+2. Write a ROS node and subscribe to `/pr2/world/points` topic. This topic contains noisy point cloud data that you must work with.
+3. Use filtering and RANSAC plane fitting to isolate the objects of interest from the rest of the scene.
+4. Apply Euclidean clustering to create separate clusters for individual items.
+5. Perform object recognition on these objects and assign them labels (markers in RViz).
+6. Calculate the centroid (average in x, y and z) of the set of points belonging to that each object.
+7. Create ROS messages containing the details of each object (name, pick_pose, etc.) and write these messages out to `.yaml` files, one for each of the 3 scenarios (`test1-3.world` in `/pr2_robot/worlds/`).  See the example `output.yaml` for details on what the output should look like.  
+8. Submit a link to your GitHub repo for the project or the Python code for your perception pipeline and your output `.yaml` files (3 `.yaml` files, one for each test world).  You must have correctly identified 100% of objects from `pick_list_1.yaml` for `test1.world`, 80% of items from `pick_list_2.yaml` for `test2.world` and 75% of items from `pick_list_3.yaml` in `test3.world`.
+9. Congratulations!  Your Done!
+
+# Extra Challenges: Complete the Pick & Place
+7. To create a collision map, publish a point cloud to the `/pr2/3d_map/points` topic and make sure you change the `point_cloud_topic` to `/pr2/3d_map/points` in `sensors.yaml` in the `/pr2_robot/config/` directory. This topic is read by Moveit!, which uses this point cloud input to generate a collision map, allowing the robot to plan its trajectory.  Keep in mind that later when you go to pick up an object, you must first remove it from this point cloud so it is removed from the collision map!
+8. Rotate the robot to generate collision map of table sides. This can be accomplished by publishing joint angle value(in radians) to `/pr2/world_joint_controller/command`
+9. Rotate the robot back to its original state.
+10. Create a ROS Client for the “pick_place_routine” rosservice.  In the required steps above, you already created the messages you need to use this service. Checkout the [PickPlace.srv](https://github.com/udacity/RoboND-Perception-Project/tree/master/pr2_robot/srv) file to find out what arguments you must pass to this service.
+11. If everything was done correctly, when you pass the appropriate messages to the `pick_place_routine` service, the selected arm will perform pick and place operation and display trajectory in the RViz window
+12. Place all the objects from your pick list in their respective dropoff box and you have completed the challenge!
+13. Looking for a bigger challenge?  Load up the `challenge.world` scenario and see if you can get your perception pipeline working there!
 
 For all the step-by-step details on how to complete this project see the [RoboND 3D Perception Project Lesson]()
 Note: The robot is a bit moody at times and might leave objects on the table or fling them across the room :D
