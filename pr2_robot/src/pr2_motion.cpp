@@ -50,7 +50,7 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
 
   // Publish messages to rviz
   visual_tools_ptr->trigger();
-  //TODO:visual_tools_ptr->prompt("next step");
+  visual_tools_ptr->prompt("next step");
 
   /*
    * Collision Objects:
@@ -95,7 +95,7 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
 
   // Allow MoveGroup to add the collision objects in the world
   ros::Duration(1.0).sleep();
-  //TODO:visual_tools_ptr->prompt("next step");
+  //visual_tools_ptr->prompt("next step");
 
   // We can print the name of the reference frame for this robot.
   ROS_INFO_NAMED("tutorial", "Reference frame: %s", right_move_group.getPlanningFrame().c_str());
@@ -113,7 +113,7 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
 
   ROS_INFO_NAMED("tutorial", "Visualizing plan 1 (pose goal) %s", (right_success & left_success) ? "" : "FAILED");
 
-  //TODO:visual_tools_ptr->prompt("next step");
+  visual_tools_ptr->prompt("next step");
 
   //Rotate in place to capture collision map from the sides
   std_msgs::Float64 world_joint_value;
@@ -121,17 +121,17 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
   world_joint_value.data = -1.57;
   world_joint_pub.publish(world_joint_value);
   ros::Duration(1.0).sleep();
-  //TODO:visual_tools_ptr->prompt("next step");
+  visual_tools_ptr->prompt("next step");
 
   world_joint_value.data = 1.57;
   world_joint_pub.publish(world_joint_value);
   ros::Duration(1.0).sleep();
-  //TODO:visual_tools_ptr->prompt("next step");
+  visual_tools_ptr->prompt("next step");
 
   world_joint_value.data = 0;
   world_joint_pub.publish(world_joint_value);
   ros::Duration(1.0).sleep();
-  //TODO:visual_tools_ptr->prompt("next step");
+  visual_tools_ptr->prompt("next step");
 
   //Target object pick pose
   std::vector<geometry_msgs::Pose> pose_list, drop_list, mesh_pose_list;
@@ -243,7 +243,7 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
 
   ROS_INFO_STREAM(pose_list[0]);
 
-  for(size_t i=1; i<pose_list.size();++i)
+  for(size_t i=0; i<pose_list.size();++i)
   {
     // set starting pose
     right_move_group.setStartStateToCurrentState();
