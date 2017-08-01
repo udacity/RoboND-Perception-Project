@@ -212,7 +212,7 @@ bool PR2PickPlace::Routine(pr2_robot::PickPlace::Request &req,
 
       //Reach movement
       right_move_group.setStartStateToCurrentState();
-      grasp_pose.position.z = grasp_pose.position.z+0.07;
+      grasp_pose.position.z = grasp_pose.position.z+0.12;
       right_move_group.setPoseTarget(grasp_pose);
       right_success = right_move_group.move();
       ROS_INFO("Visualizing plan to target: %s",

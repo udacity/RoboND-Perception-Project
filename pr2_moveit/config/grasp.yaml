@@ -11,7 +11,7 @@ grasp_list:
           w: 0.5
     soap:
         position:
-          x: 0.58
+          x: 0.57
           y: -0.02
           z: 0.93
         orientation:
@@ -22,16 +22,16 @@ grasp_list:
     soap2:
         position:
           x: 0.46
-          y: 0.22
-          z: 0.86
+          y: 0.23
+          z: 0.95
         orientation:
-          x: 0.140
-          y: 0.693
-          z: -0.140
-          w: 0.693
+          x: 0.293
+          y: 0.643
+          z: -0.293
+          w: 0.643
   - biscuits:
         position:
-          x: 0.57
+          x: 0.56
           y: -0.24
           z: 0.97
         orientation:
@@ -41,7 +41,7 @@ grasp_list:
           w: 0.5
     soap:
         position:
-          x: 0.58
+          x: 0.57
           y: -0.02
           z: 0.93
         orientation:
@@ -62,13 +62,13 @@ grasp_list:
     soap2:
        position:
          x: 0.46
-         y: 0.22
-         z: 0.93
+         y: 0.23
+         z: 0.95
        orientation:
-         x: -0.259
-         y: 0.658
-         z: 0.259
-         w: 0.658
+         x: 0.293
+         y: 0.643
+         z: -0.293
+         w: 0.643
     glue:
        position:
          x: 0.634

@@ -44,13 +44,13 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
 
   // Create text marker for displaying current state
   Eigen::Affine3d text_pose = Eigen::Affine3d::Identity();
-  text_pose.translation().z() = 2.0;
+  text_pose.translation().z() = 1.5;
   visual_tools_ptr->publishText(text_pose, "Welcome to Advance Pick and Place project",
                            rviz_visual_tools::WHITE, rviz_visual_tools::XXXLARGE);
 
   // Publish messages to rviz
   visual_tools_ptr->trigger();
-  visual_tools_ptr->prompt("next step");
+  //TODO:visual_tools_ptr->prompt("next step");
 
   /*
    * Collision Objects:
@@ -95,7 +95,7 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
 
   // Allow MoveGroup to add the collision objects in the world
   ros::Duration(1.0).sleep();
-  visual_tools_ptr->prompt("next step");
+  //TODO:visual_tools_ptr->prompt("next step");
 
   // We can print the name of the reference frame for this robot.
   ROS_INFO_NAMED("tutorial", "Reference frame: %s", right_move_group.getPlanningFrame().c_str());
@@ -113,34 +113,47 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
 
   ROS_INFO_NAMED("tutorial", "Visualizing plan 1 (pose goal) %s", (right_success & left_success) ? "" : "FAILED");
 
-  visual_tools_ptr->prompt("next step");
+  //TODO:visual_tools_ptr->prompt("next step");
 
   //Rotate in place to capture collision map from the sides
   std_msgs::Float64 world_joint_value;
 
   world_joint_value.data = -1.57;
   world_joint_pub.publish(world_joint_value);
-  ros::Duration(2.0).sleep();
-  visual_tools_ptr->prompt("next step");
+  ros::Duration(1.0).sleep();
+  //TODO:visual_tools_ptr->prompt("next step");
 
   world_joint_value.data = 1.57;
   world_joint_pub.publish(world_joint_value);
-  ros::Duration(2.0).sleep();
-  visual_tools_ptr->prompt("next step");
+  ros::Duration(1.0).sleep();
+  //TODO:visual_tools_ptr->prompt("next step");
 
   world_joint_value.data = 0;
   world_joint_pub.publish(world_joint_value);
-  ros::Duration(2.0).sleep();
-  visual_tools_ptr->prompt("next step");
+  ros::Duration(1.0).sleep();
+  //TODO:visual_tools_ptr->prompt("next step");
 
   //Target object pick pose
-  std::vector<geometry_msgs::Pose> pose_list, mesh_pose_list;
+  std::vector<geometry_msgs::Pose> pose_list, drop_list, mesh_pose_list;
   geometry_msgs::Pose target_pose, drop_pose, target_mesh_pose;
 
   drop_pose.orientation.w = 1.0;
-  drop_pose.position.x = -0.05;
-  drop_pose.position.y = -0.7;
+  drop_pose.position.x = -0.03;
+  drop_pose.position.y = -0.8;
   drop_pose.position.z = 1.0;
+  drop_list.push_back(drop_pose);
+
+  drop_pose.orientation.w = 1.0;
+  drop_pose.position.x = -0.03;
+  drop_pose.position.y = -0.65;
+  drop_pose.position.z = 1.0;
+  drop_list.push_back(drop_pose);
+
+  drop_pose.orientation.w = 1.0;
+  drop_pose.position.x = -0.1;
+  drop_pose.position.y = -0.8;
+  drop_pose.position.z = 1.0;
+  drop_list.push_back(drop_pose);
 
   tf::Quaternion qt = RPYToQuaternion(1.57, 1.57, 0);
   target_pose.orientation.w = qt.getW();
@@ -157,19 +170,19 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
   target_pose.orientation.x = qt.getX();
   target_pose.orientation.y = qt.getY();
   target_pose.orientation.z = qt.getZ();
-  target_pose.position.x = 0.58;
+  target_pose.position.x = 0.57;
   target_pose.position.y = -0.02;
   target_pose.position.z = 0.93;
   pose_list.push_back(target_pose);
 
-  qt = RPYToQuaternion(0.55, 1.57, 0);
+  qt = RPYToQuaternion(0.85, 1.57, 0);
   target_pose.orientation.w = qt.getW();
   target_pose.orientation.x = qt.getX();
   target_pose.orientation.y = qt.getY();
   target_pose.orientation.z = qt.getZ();
   target_pose.position.x = 0.46;
-  target_pose.position.y = 0.22;
-  target_pose.position.z = 0.86;
+  target_pose.position.y = 0.23;
+  target_pose.position.z = 0.95;
   pose_list.push_back(target_pose);
 
   //Mesh poses
@@ -200,7 +213,7 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
   qt = RPYToQuaternion(0, 0, 0);
   target_mesh_pose.position.x = 0.46;
   target_mesh_pose.position.y = 0.22;
-  target_mesh_pose.position.z = 0.63;
+  target_mesh_pose.position.z = 0.61;
   target_mesh_pose.orientation.w = qt.getW();
   target_mesh_pose.orientation.x = qt.getX();
   target_mesh_pose.orientation.y = qt.getY();
@@ -230,7 +243,7 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
 
   ROS_INFO_STREAM(pose_list[0]);
 
-  for(size_t i=0; i<pose_list.size();++i)
+  for(size_t i=1; i<pose_list.size();++i)
   {
     // set starting pose
     right_move_group.setStartStateToCurrentState();
@@ -238,20 +251,18 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
 
     // set target pose
     right_move_group.setPoseTarget(pose_list[i]);
-
     right_success = right_move_group.plan(right_arm_plan);
     ROS_INFO("Visualizing plan to target: %s",
              right_success ? "SUCCEEDED" : "FAILED");
 
-    // Visualizing plans
-    // ^^^^^^^^^^^^^^^^^
-    // We can also visualize the plan as a line with markers in Rviz.
+    // visualize the plan in Rviz.
     ROS_INFO("Visualizing plan 1 as trajectory line");
-    visual_tools_ptr->publishAxisLabeled(pose_list[i], "pose");
-    visual_tools_ptr->publishText(text_pose, "Pose Goal", rviz_visual_tools::WHITE, rviz_visual_tools::XLARGE);
+    visual_tools_ptr->deleteAllMarkers();
+    visual_tools_ptr->publishAxisLabeled(pose_list[i], "reach_pose");
+    visual_tools_ptr->publishText(text_pose, "Reach Pose", rviz_visual_tools::WHITE, rviz_visual_tools::XLARGE);
     visual_tools_ptr->publishTrajectoryLine(right_arm_plan.trajectory_, right_joint_model_group);
     visual_tools_ptr->trigger();
-    //visual_tools_ptr->prompt("next step");
+    visual_tools_ptr->prompt("next step");
 
     right_move_group.execute(right_arm_plan);
 
@@ -259,9 +270,18 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
     right_move_group.setStartStateToCurrentState();
     pose_list[i].position.z = pose_list[i].position.z-0.07;
     right_move_group.setPoseTarget(pose_list[i]);
-    right_success = right_move_group.move();
+    right_success = right_move_group.plan(right_arm_plan);
     ROS_INFO("Visualizing plan to target: %s",
              right_success ? "SUCCEEDED" : "FAILED");
+    // We can also visualize the plan as a line with markers in Rviz.
+    visual_tools_ptr->deleteAllMarkers();
+    visual_tools_ptr->publishAxisLabeled(pose_list[i], "pick_pose");
+    visual_tools_ptr->publishText(text_pose, "Pick Pose", rviz_visual_tools::WHITE, rviz_visual_tools::XLARGE);
+    visual_tools_ptr->publishTrajectoryLine(right_arm_plan.trajectory_, right_joint_model_group);
+    visual_tools_ptr->trigger();
+    visual_tools_ptr->prompt("next step");
+
+    right_move_group.execute(right_arm_plan);
 
     //Remove object from the scene
     object_ids.push_back(target_object_list[i].id);
@@ -273,30 +293,39 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
 
     //Reach movement
     right_move_group.setStartStateToCurrentState();
-    pose_list[i].position.z = pose_list[i].position.z+0.03;
+    pose_list[i].position.z = pose_list[i].position.z+0.12;
     right_move_group.setPoseTarget(pose_list[i]);
-    right_success = right_move_group.move();
+    right_success = right_move_group.plan(right_arm_plan);
     ROS_INFO("Visualizing plan to target: %s",
              right_success ? "SUCCEEDED" : "FAILED");
+    // visualize the plan in Rviz.
+    visual_tools_ptr->deleteAllMarkers();
+    visual_tools_ptr->publishAxisLabeled(pose_list[i], "reach_pose");
+    visual_tools_ptr->publishText(text_pose, "Reach Pose", rviz_visual_tools::WHITE, rviz_visual_tools::XLARGE);
+    visual_tools_ptr->publishTrajectoryLine(right_arm_plan.trajectory_, right_joint_model_group);
+    visual_tools_ptr->trigger();
+    visual_tools_ptr->prompt("next step");
+
+    right_move_group.execute(right_arm_plan);
 
     //drop the ball
     right_move_group.setStartStateToCurrentState();
-    drop_pose.position.x = drop_pose.position.x-0.03;
-    right_move_group.setPoseTarget(drop_pose);
+    right_move_group.setPoseTarget(drop_list[i]);
     right_success = right_move_group.plan(right_arm_plan);
     ROS_INFO("Visualizing plan to target: %s",
              right_success ? "SUCCEEDED" : "FAILED");
 
-    visual_tools_ptr->publishAxisLabeled(drop_pose, "pose");
-    visual_tools_ptr->publishText(text_pose, "Pose Goal", rviz_visual_tools::WHITE, rviz_visual_tools::XLARGE);
+    visual_tools_ptr->deleteAllMarkers();
+    visual_tools_ptr->publishAxisLabeled(drop_list[i], "drop_pose");
+    visual_tools_ptr->publishText(text_pose, "Drop Pose", rviz_visual_tools::WHITE, rviz_visual_tools::XLARGE);
     visual_tools_ptr->publishTrajectoryLine(right_arm_plan.trajectory_, right_joint_model_group);
     visual_tools_ptr->trigger();
-    right_move_group.execute(right_arm_plan);
+    visual_tools_ptr->prompt("next step");
 
+    right_move_group.execute(right_arm_plan);
 
     //Open Gripper
     OperateRightGripper(false);
-    OperateLeftGripper(false);
   }
 
   visual_tools_ptr->deleteAllMarkers();
