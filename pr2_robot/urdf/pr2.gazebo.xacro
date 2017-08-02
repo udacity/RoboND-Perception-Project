@@ -57,6 +57,12 @@
         <gripper_link>right_right_gripper_finger_link</gripper_link>
         <gripper_link>right_left_gripper_finger_link</gripper_link>
       </arm>
+      <arm>
+        <arm_name>pr2_left_arm</arm_name>
+        <palm_link>left_wrist_roll_link</palm_link>
+        <gripper_link>left_right_gripper_finger_link</gripper_link>
+        <gripper_link>left_left_gripper_finger_link</gripper_link>
+      </arm>
       <forces_angle_tolerance>100</forces_angle_tolerance>
       <update_rate>4</update_rate>
       <grip_count_threshold>4</grip_count_threshold>

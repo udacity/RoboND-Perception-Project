@@ -37,7 +37,7 @@ PR2PickPlace::PR2PickPlace(ros::NodeHandle nh)
 
   // Create text marker for displaying current state
   Eigen::Affine3d text_pose = Eigen::Affine3d::Identity();
-  text_pose.translation().z() = 2.0;
+  text_pose.translation().z() = 1.6;
   visual_tools_ptr->publishText(text_pose, "Welcome to Advance Pick and Place project",
                            rviz_visual_tools::WHITE, rviz_visual_tools::XXXLARGE);
 
@@ -104,7 +104,7 @@ bool PR2PickPlace::Routine(pr2_robot::PickPlace::Request &req,
 
   // Create text marker for displaying current state
   Eigen::Affine3d text_pose = Eigen::Affine3d::Identity();
-  text_pose.translation().z() = 2.0;
+  text_pose.translation().z() = 1.6;
   visual_tools_ptr->publishText(text_pose, "New request received",
                            rviz_visual_tools::WHITE, rviz_visual_tools::XXXLARGE);
   visual_tools_ptr->trigger();
@@ -122,6 +122,7 @@ bool PR2PickPlace::Routine(pr2_robot::PickPlace::Request &req,
   if (grasp_client.call(grasp_srv))
   {
     grasp_pose = grasp_srv.response.grasp_pose;
+    ROS_INFO_STREAM("grasp_pose: "<<grasp_pose);
   }
   else
   {
@@ -186,11 +187,11 @@ bool PR2PickPlace::Routine(pr2_robot::PickPlace::Request &req,
 
       // We can also visualize the plan as a line with markers in Rviz.
       ROS_INFO("Visualizing plan 1 as trajectory line");
-      visual_tools_ptr->publishAxisLabeled(grasp_pose, "pose");
-      visual_tools_ptr->publishText(text_pose, "Pose Goal", rviz_visual_tools::WHITE, rviz_visual_tools::XLARGE);
+      visual_tools_ptr->publishAxisLabeled(grasp_pose, "reach_pose");
+      visual_tools_ptr->publishText(text_pose, "Reach Pose", rviz_visual_tools::WHITE, rviz_visual_tools::XLARGE);
       visual_tools_ptr->publishTrajectoryLine(right_arm_plan.trajectory_, right_joint_model_group);
       visual_tools_ptr->trigger();
-      //visual_tools_ptr->prompt("next step");
+      visual_tools_ptr->prompt("Click Next");
 
       right_move_group.execute(right_arm_plan);
 
@@ -198,9 +199,19 @@ bool PR2PickPlace::Routine(pr2_robot::PickPlace::Request &req,
       right_move_group.setStartStateToCurrentState();
       grasp_pose.position.z = grasp_pose.position.z-0.07;
       right_move_group.setPoseTarget(grasp_pose);
-      right_success = right_move_group.move();
+      right_success = right_move_group.plan(right_arm_plan);
       ROS_INFO("Visualizing plan to target: %s",
                right_success ? "SUCCEEDED" : "FAILED");
+
+      // We can also visualize the plan as a line with markers in Rviz.
+      visual_tools_ptr->deleteAllMarkers();
+      visual_tools_ptr->publishAxisLabeled(grasp_pose, "pick_pose");
+      visual_tools_ptr->publishText(text_pose, "Pick Pose", rviz_visual_tools::WHITE, rviz_visual_tools::XLARGE);
+      visual_tools_ptr->publishTrajectoryLine(right_arm_plan.trajectory_, right_joint_model_group);
+      visual_tools_ptr->trigger();
+      visual_tools_ptr->prompt("Click Next");
+
+      right_move_group.execute(right_arm_plan);
 
       //Remove object from the scene
       object_ids.push_back(req.object_name.data);
@@ -214,32 +225,42 @@ bool PR2PickPlace::Routine(pr2_robot::PickPlace::Request &req,
       right_move_group.setStartStateToCurrentState();
       grasp_pose.position.z = grasp_pose.position.z+0.12;
       right_move_group.setPoseTarget(grasp_pose);
-      right_success = right_move_group.move();
+      right_success = right_move_group.plan(right_arm_plan);
       ROS_INFO("Visualizing plan to target: %s",
                right_success ? "SUCCEEDED" : "FAILED");
+      // visualize the plan in Rviz.
+      visual_tools_ptr->deleteAllMarkers();
+      visual_tools_ptr->publishAxisLabeled(grasp_pose, "reach_pose");
+      visual_tools_ptr->publishText(text_pose, "Reach Pose", rviz_visual_tools::WHITE, rviz_visual_tools::XLARGE);
+      visual_tools_ptr->publishTrajectoryLine(right_arm_plan.trajectory_, right_joint_model_group);
+      visual_tools_ptr->trigger();
+      visual_tools_ptr->prompt("Click Next");
+
+      right_move_group.execute(right_arm_plan);
 
       //drop the ball
       right_move_group.setStartStateToCurrentState();
       place_pose.position.z = place_pose.position.z+0.4;
 
       ROS_INFO_STREAM(place_pose);
-      //visual_tools_ptr->prompt("next step");
+      //visual_tools_ptr->prompt("Click Next");
 
       right_move_group.setPoseTarget(place_pose);
       right_success = right_move_group.plan(right_arm_plan);
       ROS_INFO("Visualizing plan to target: %s",
                right_success ? "SUCCEEDED" : "FAILED");
 
-      visual_tools_ptr->publishAxisLabeled(place_pose, "pose");
-      visual_tools_ptr->publishText(text_pose, "Pose Goal", rviz_visual_tools::WHITE, rviz_visual_tools::XLARGE);
+      visual_tools_ptr->publishAxisLabeled(place_pose, "drop_pose");
+      visual_tools_ptr->publishText(text_pose, "Drop Pose", rviz_visual_tools::WHITE, rviz_visual_tools::XLARGE);
       visual_tools_ptr->publishTrajectoryLine(right_arm_plan.trajectory_, right_joint_model_group);
       visual_tools_ptr->trigger();
+      visual_tools_ptr->prompt("Click Next");
       right_move_group.execute(right_arm_plan);
 
 
       //Open Gripper
       OperateRightGripper(false);
-      ros::Duration(3.0).sleep();
+      ros::Duration(5.0).sleep();
 
       //Raise arms
       right_move_group.setNamedTarget("RIGHT_ARM_INITIAL_POSE");
@@ -255,11 +276,12 @@ bool PR2PickPlace::Routine(pr2_robot::PickPlace::Request &req,
 
       // We can also visualize the plan as a line with markers in Rviz.
       ROS_INFO("Visualizing plan 1 as trajectory line");
-      visual_tools_ptr->publishAxisLabeled(grasp_pose, "pose");
-      visual_tools_ptr->publishText(text_pose, "Pose Goal", rviz_visual_tools::WHITE, rviz_visual_tools::XLARGE);
+      visual_tools_ptr->deleteAllMarkers();
+      visual_tools_ptr->publishAxisLabeled(grasp_pose, "reach_pose");
+      visual_tools_ptr->publishText(text_pose, "Reach Pose", rviz_visual_tools::WHITE, rviz_visual_tools::XLARGE);
       visual_tools_ptr->publishTrajectoryLine(left_arm_plan.trajectory_, left_joint_model_group);
       visual_tools_ptr->trigger();
-      //visual_tools_ptr->prompt("next step");
+      visual_tools_ptr->prompt("Click Next");
 
       left_move_group.execute(left_arm_plan);
 
@@ -267,9 +289,18 @@ bool PR2PickPlace::Routine(pr2_robot::PickPlace::Request &req,
       left_move_group.setStartStateToCurrentState();
       grasp_pose.position.z = grasp_pose.position.z-0.07;
       left_move_group.setPoseTarget(grasp_pose);
-      left_success = left_move_group.move();
+      left_success = left_move_group.plan(left_arm_plan);
       ROS_INFO("Visualizing plan to target: %s",
                left_success ? "SUCCEEDED" : "FAILED");
+      // We can also visualize the plan as a line with markers in Rviz.
+      visual_tools_ptr->deleteAllMarkers();
+      visual_tools_ptr->publishAxisLabeled(grasp_pose, "pick_pose");
+      visual_tools_ptr->publishText(text_pose, "Pick Pose", rviz_visual_tools::WHITE, rviz_visual_tools::XLARGE);
+      visual_tools_ptr->publishTrajectoryLine(left_arm_plan.trajectory_, left_joint_model_group);
+      visual_tools_ptr->trigger();
+      visual_tools_ptr->prompt("next step");
+
+      left_move_group.execute(left_arm_plan);
 
       //Remove object from the scene
       object_ids.push_back(req.object_name.data);
@@ -281,38 +312,50 @@ bool PR2PickPlace::Routine(pr2_robot::PickPlace::Request &req,
 
       //Reach movement
       left_move_group.setStartStateToCurrentState();
-      grasp_pose.position.z = grasp_pose.position.z+0.07;
+      grasp_pose.position.z = grasp_pose.position.z+0.12;
       left_move_group.setPoseTarget(grasp_pose);
-      left_success = left_move_group.move();
+      left_success = left_move_group.plan(left_arm_plan);
       ROS_INFO("Visualizing plan to target: %s",
                left_success ? "SUCCEEDED" : "FAILED");
+      // We can also visualize the plan as a line with markers in Rviz.
+      visual_tools_ptr->deleteAllMarkers();
+      visual_tools_ptr->publishAxisLabeled(grasp_pose, "reach_pose");
+      visual_tools_ptr->publishText(text_pose, "Reach Pose", rviz_visual_tools::WHITE, rviz_visual_tools::XLARGE);
+      visual_tools_ptr->publishTrajectoryLine(left_arm_plan.trajectory_, left_joint_model_group);
+      visual_tools_ptr->trigger();
+      visual_tools_ptr->prompt("next step");
+
+      left_move_group.execute(left_arm_plan);
 
       //drop the ball
       left_move_group.setStartStateToCurrentState();
       place_pose.position.z = place_pose.position.z+0.4;
 
       ROS_INFO_STREAM(place_pose);
-      //visual_tools_ptr->prompt("next step");
+      //visual_tools_ptr->prompt("Click Next");
 
       left_move_group.setPoseTarget(place_pose);
       left_success = left_move_group.plan(left_arm_plan);
       ROS_INFO("Visualizing plan to target: %s",
                left_success ? "SUCCEEDED" : "FAILED");
 
-      visual_tools_ptr->publishAxisLabeled(place_pose, "pose");
-      visual_tools_ptr->publishText(text_pose, "Pose Goal", rviz_visual_tools::WHITE, rviz_visual_tools::XLARGE);
+      visual_tools_ptr->deleteAllMarkers();
+      visual_tools_ptr->publishAxisLabeled(place_pose, "drop_pose");
+      visual_tools_ptr->publishText(text_pose, "Drop Pose", rviz_visual_tools::WHITE, rviz_visual_tools::XLARGE);
       visual_tools_ptr->publishTrajectoryLine(left_arm_plan.trajectory_, left_joint_model_group);
       visual_tools_ptr->trigger();
+      visual_tools_ptr->prompt("next step");
+
       left_move_group.execute(left_arm_plan);
 
 
       //Open Gripper
       OperateLeftGripper(false);
-      ros::Duration(3.0).sleep();
+      ros::Duration(5.0).sleep();
 
       //Raise arms
       left_move_group.setNamedTarget("LEFT_ARM_INITIAL_POSE");
-      right_success = right_move_group.move();
+      left_success = left_move_group.move();
     }
     res.success = true;
   }
@@ -410,8 +453,8 @@ bool PR2PickPlace::OperateLeftGripper(const bool &close_gripper)
   // Set finger joint values
   if (close_gripper)
   {
-    gripper_joint_positions[0] = 0.035;
-    gripper_joint_positions[1] = 0.035;
+    gripper_joint_positions[0] = 0.045;
+    gripper_joint_positions[1] = 0.045;
   }
   else
   {

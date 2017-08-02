@@ -31,7 +31,7 @@ grasp_list:
           w: 0.643
   - biscuits:
         position:
-          x: 0.56
+          x: 0.58
           y: -0.24
           z: 0.97
         orientation:
@@ -41,41 +41,121 @@ grasp_list:
           w: 0.5
     soap:
         position:
-          x: 0.57
-          y: -0.02
-          z: 0.93
+          x: 0.585
+          y: 0
+          z: 0.92
         orientation:
-          x: -0.259
-          y: 0.658
-          z: 0.259
-          w: 0.658
+          x: 0.298
+          y: 0.641
+          z: -0.298
+          w: 0.642
     book:
         position:
           x: 0.59
           y: 0.28
-          z: 0.86
+          z: 1.03
+        orientation:
+          x: 0.262
+          y: 0.657
+          z: -0.262
+          w: 0.657
+    soap2:
+        position:
+          x: 0.46
+          y: 0.23
+          z: 0.95
+        orientation:
+          x: 0.293
+          y: 0.643
+          z: -0.293
+          w: 0.643
+    glue:
+        position:
+          x: 0.634
+          y: 0.13
+          z: 0.96
         orientation:
           x: 0.140
           y: 0.693
           z: -0.140
           w: 0.693
+  - sticky_notes:
+        position:
+          x: 0.45
+          y: 0.22
+          z: 0.97
+        orientation:
+          x: 0.5
+          y: 0.5
+          z: -0.5
+          w: 0.5
+    book:
+        position:
+          x: 0.5
+          y: 0.08
+          z: 1.03
+        orientation:
+          x: -0.259
+          y: 0.658
+          z: 0.259
+          w: 0.658
+    snacks:
+        position:
+          x: 0.44
+          y: -0.34
+          z: 1.05
+        orientation:
+          x: 0.325
+          y: 0.657
+          z: -0.261
+          w: 0.628
+    biscuits:
+        position:
+          x: 0.6
+          y: -0.22
+          z: 0.97
+        orientation:
+          x: 0.34
+          y: 0.62
+          z: -0.34
+          w: 0.62
+    eraser:
+        position:
+          x: 0.61
+          y: 0.27
+          z: 0.9
+        orientation:
+          x: 0.298
+          y: 0.641
+          z: -0.298
+          w: 0.642
     soap2:
-       position:
-         x: 0.46
-         y: 0.23
-         z: 0.95
-       orientation:
-         x: 0.293
-         y: 0.643
-         z: -0.293
-         w: 0.643
+        position:
+          x: 0.46
+          y: -0.05
+          z: 0.95
+        orientation:
+          x: 0.65
+          y: 0.279
+          z: -0.65
+          w: 0.279
+    soap:
+        position:
+          x: 0.69
+          y: 0.01
+          z: 0.92
+        orientation:
+          x: 0.293
+          y: 0.643
+          z: -0.293
+          w: 0.643
     glue:
-       position:
-         x: 0.634
-         y: 0.13
-         z: 0.86
-       orientation:
-         x: 0.140
-         y: 0.693
-         z: -0.140
-         w: 0.693
+        position:
+          x: 0.62
+          y: 0.13
+          z: 0.96
+        orientation:
+          x: 0.140
+          y: 0.693
+          z: -0.140
+          w: 0.693
