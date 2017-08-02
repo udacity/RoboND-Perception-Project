@@ -207,15 +207,22 @@ def pr2_mover(object_list):
         # Get the PointCloud for a given object and obtain it's centroid
         labels.append(object.label)
         points_arr = ros_to_pcl(object.cloud).to_array()
-        pick_pose.position = np.mean(points_arr, axis=0)[:3]
-        pick_centroids.append(pick_pose)
+        pick_centroid = np.mean(points_arr, axis=0)[:3]
+        pick_pose.position.x = pick_centroid[0]
+        pick_pose.position.y = pick_centroid[1]
+        pick_pose.position.z = pick_centroid[2]
+        pick_centroids.append(pick_centroid)
 
         # TODO: Create 'place_pose' for the object
-        for i, dropbox in enumerate(dropbox_param):
+        for i in range(0,len(dropbox_param)):
             if object_group == dropbox_param[i]["group"]:
-                place_pose.position = dropbox_param[i]["position"]
-                place_centroids.append(place_pose)
-        # TODO: Assign the arm to be used for pick_place
+                place_centroid = dropbox_param[i]["position"]
+                place_pose.position.x = place_centroid[0]
+                place_pose.position.y = place_centroid[1]
+                place_pose.position.z = place_centroid[2]
+                place_centroids.append(place_centroid)
+
+                # TODO: Assign the arm to be used for pick_place
                 arm_name.data = dropbox_param[i]["name"]
 
         # Create a list of dictionaries (made with make_yaml_dict()) for later output to yaml format
