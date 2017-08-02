@@ -55,15 +55,15 @@ def pcl_callback(pcl_msg):
     pcl_data = ros_to_pcl(pcl_msg)
     # Voxel Grid Downsampling
     vox = pcl_data.make_voxel_grid_filter()
-    LEAF_SIZE = 0.01
+    LEAF_SIZE = 0.02
     vox.set_leaf_size(LEAF_SIZE, LEAF_SIZE, LEAF_SIZE)
     cloud_filtered = vox.filter()
     # TODO: PassThrough Filter
     passthrough = cloud_filtered.make_passthrough_filter()
     filter_axis = 'z'
     passthrough.set_filter_field_name (filter_axis)
-    axis_min = 0.40
-    axis_max = 0.60
+    axis_min = 0.6
+    axis_max = 0.9
     passthrough.set_filter_limits (axis_min, axis_max)
     cloud_filtered = passthrough.filter()
     # TODO: RANSAC Plane Segmentation
@@ -84,8 +84,8 @@ def pcl_callback(pcl_msg):
     tree = white_cloud.make_kdtree()
     ec = white_cloud.make_EuclideanClusterExtraction()
     ec.set_ClusterTolerance(0.0385)
-    ec.set_MinClusterSize(700)
-    ec.set_MaxClusterSize(6000)
+    ec.set_MinClusterSize(20)
+    ec.set_MaxClusterSize(200)
     ec.set_SearchMethod(tree)
     cluster_indices = ec.Extract()
 
@@ -161,7 +161,7 @@ def pcl_callback(pcl_msg):
     # Could add some logic to determine whether or not your object detections are robust
     # before calling pr2_mover()
     try:
-        pr2_mover(detected_objects_list)
+        pr2_mover(detected_objects)
     except rospy.ROSInterruptException:
         pass
 
