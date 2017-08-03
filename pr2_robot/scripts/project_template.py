@@ -52,6 +52,8 @@ def pcl_callback(pcl_msg):
 # Exercise-2 TODOs:
 
     # TODO: Convert ROS msg to PCL data
+    
+    # TODO: Statistical Outlier Filtering
 
     # TODO: Voxel Grid Downsampling
 
