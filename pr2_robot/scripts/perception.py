@@ -61,17 +61,42 @@ def pcl_callback(pcl_msg):
 
     # Convert ROS msg to PCL data
     pcl_data = ros_to_pcl(pcl_msg)
+    # TODO: Statistical Outlier Filtering
+    # Much like the previous filters, we start by creating a filter object: 
+    outlier_filter = pcl_data.make_statistical_outlier_filter()
+
+    # Set the number of neighboring points to analyze for any given point
+    outlier_filter.set_mean_k(10)
+
+    # Set threshold scale factor
+    x = 1.0
+
+    # Any point with a mean distance larger than global (mean distance+x*std_dev) will be considered outlier
+    outlier_filter.set_std_dev_mul_thresh(x)
+
+    # Finally call the filter function for magic
+    cloud_filtered = outlier_filter.filter()
+
     # Voxel Grid Downsampling
-    vox = pcl_data.make_voxel_grid_filter()
+    vox = cloud_filtered.make_voxel_grid_filter()
     LEAF_SIZE = 0.02
     vox.set_leaf_size(LEAF_SIZE, LEAF_SIZE, LEAF_SIZE)
     cloud_filtered = vox.filter()
-    # PassThrough Filter
+    
+    # PassThrough Filter z
     passthrough = cloud_filtered.make_passthrough_filter()
     filter_axis = 'z'
     passthrough.set_filter_field_name (filter_axis)
     axis_min = 0.6
     axis_max = 0.9
+    passthrough.set_filter_limits (axis_min, axis_max)
+    cloud_filtered = passthrough.filter()
+    # PassThrough Filter x
+    passthrough = cloud_filtered.make_passthrough_filter()
+    filter_axis = 'y'
+    passthrough.set_filter_field_name (filter_axis)
+    axis_min = -0.5
+    axis_max = 0.5
     passthrough.set_filter_limits (axis_min, axis_max)
     cloud_filtered = passthrough.filter()
     # RANSAC Plane Segmentation
@@ -86,6 +111,10 @@ def pcl_callback(pcl_msg):
     extracted_inliers = cloud_filtered.extract(inliers,negative=False)
     extracted_outliers = cloud_filtered.extract(inliers, negative=True)
 
+    # Publish a point cloud to `/pr2/3D_map/points`.  
+    # Telling the robot where objects are in the environment in order to avoid collisions.
+    collision_map_3d = pcl_to_ros(cloud_filtered)
+    collision_map_pub.publish(collision_map_3d)
 
     # Euclidean Clustering
     white_cloud = XYZRGB_to_XYZ(extracted_outliers)
@@ -199,7 +228,20 @@ def pr2_mover(object_list):
     arm_name = String()
     pick_pose = Pose()
     place_pose = Pose()
-    # Rotate PR2 in place to capture side tables for the collision map
+    
+    # TODO: Rotate PR2 in place to capture side tables for the collision map
+    # This can be accomplished by publishing joint angle value(in radians) to `/pr2/world_joint_controller/command`
+    # rate = rospy.Rate(0.125)
+    # pr2_joint_pub.publish(-1.57)
+    # rate.sleep()
+    # pr2_joint_pub.publish(1.57)
+    # rate.sleep()
+    # pr2_joint_pub.publish(1.57)
+    # rate.sleep()
+
+    # # Rotate the robot back to its original state.
+    # pr2_joint_pub.publish(0)
+    # rate.sleep()
 
     yaml_dict_list = []
     labels = []
@@ -222,7 +264,7 @@ def pr2_mover(object_list):
             pick_pose.position.z = float(pick_centroid[2])
             pick_pose.orientation.x = 0.0
             pick_pose.orientation.y = 0.0
-            pick_pose.orientation.z = -90.0
+            pick_pose.orientation.z = 0.0
             pick_pose.orientation.w = 0.0
             pick_centroids.append(pick_centroid)
 
@@ -245,8 +287,6 @@ def pr2_mover(object_list):
             # Create a list of dictionaries (made with make_yaml_dict()) for later output to yaml format
 
             yaml_dict = make_yaml_dict(test_scene_num, arm_name, object_name, pick_pose, place_pose)
-            #print(type(yaml_dict))
-            #print(yaml_dict)
             yaml_dict_list.append(yaml_dict)
             # Wait for 'pick_place_routine' service to come up
             rospy.wait_for_service('pick_place_routine')
@@ -270,24 +310,6 @@ def pr2_mover(object_list):
     # Output your request parameters into output yaml file
     yaml_filename = "output.yml"
     # make it to reflect the test case
-    
-    print(type(yaml_dict_list[0]["test_scene_num"]))
-    print(type(yaml_dict_list[0]["object_name"]))
-    print(type(yaml_dict_list[0]["arm_name"]))
-    print(type(yaml_dict_list[0]["pick_pose"]["position"]["x"]))
-    print(type(yaml_dict_list[0]["pick_pose"]["orientation"]["x"]))
-    print(type(yaml_dict_list[0]["pick_pose"]["position"]["y"]))
-    print(type(yaml_dict_list[0]["pick_pose"]["orientation"]["y"]))
-    print(type(yaml_dict_list[0]["pick_pose"]["position"]["z"]))
-    print(type(yaml_dict_list[0]["pick_pose"]["orientation"]["z"]))
-    print(type(yaml_dict_list[0]["place_pose"]["position"]["x"]))
-    print(type(yaml_dict_list[0]["place_pose"]["orientation"]["x"]))
-    print(type(yaml_dict_list[0]["place_pose"]["position"]["y"]))
-    print(type(yaml_dict_list[0]["place_pose"]["orientation"]["y"]))
-    print(type(yaml_dict_list[0]["place_pose"]["position"]["z"]))
-    print(type(yaml_dict_list[0]["place_pose"]["orientation"]["z"]))
-    
-    print(yaml_dict_list)
     send_to_yaml(yaml_filename, yaml_dict_list)
 
 
@@ -306,9 +328,11 @@ if __name__ == '__main__':
     pcl_table_pub = rospy.Publisher("/pcl_table", PointCloud2, queue_size=1)
     pcl_cluster_pub = rospy.Publisher("/pcl_cluster", PointCloud2, queue_size=1)
     # here you need to create two publishers
-    object_markers_pub = rospy.Publisher("/object_markers", Marker, queue_size=5)
+    object_markers_pub = rospy.Publisher("/object_markers", Marker, queue_size=1)
     detected_objects_pub = rospy.Publisher("/detected_objects", DetectedObjectsArray, queue_size=1)
-    
+    collision_map_pub = rospy.Publisher("/pr2/3D_map/points", PointCloud2, queue_size=1)
+    pr2_joint_pub = rospy.Publisher("/pr2/world_joint_controller/command", Float64, queue_size=1)
+    pr2_joint_pub = rospy.Publisher("/pr2/world_joint_controller/command", Float64, queue_size=1)
     #  Load Model From disk
     model = pickle.load(open('model.sav', 'rb'))
     clf = model['classifier']

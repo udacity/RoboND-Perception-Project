@@ -24,7 +24,6 @@ if __name__ == '__main__':
     rospy.init_node('capture_node')
 
     models = [
-       'dropbox',
        'soda_can',
        'book',
        'sticky_notes',
@@ -42,7 +41,7 @@ if __name__ == '__main__':
     for model_name in models:
         spawn_model(model_name)
 
-        for i in range(400):
+        for i in range(500):
             # make five attempts to get a valid a point cloud then give up
             sample_was_good = False
             try_count = 0
