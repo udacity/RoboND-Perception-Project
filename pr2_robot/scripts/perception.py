@@ -25,6 +25,14 @@ from rospy_message_converter import message_converter
 import yaml
 import re
 
+# Helper function to existence check
+def existanceCheck(objectName, object_list_param):
+    for index, object in enumerate(object_list_param):
+        if object["name"] == objectName:
+            return True, index
+    
+    return False, -1
+
 # Helper function to get surface normals
 def get_normals(cloud):
     get_normals_prox = rospy.ServiceProxy('/feature_extractor/get_normals', GetNormals)
@@ -44,7 +52,7 @@ def make_yaml_dict(test_scene_num, arm_name, object_name, pick_pose, place_pose)
 def send_to_yaml(yaml_filename, dict_list):
     data_dict = {"object_list": dict_list}
     with open(yaml_filename, 'w') as outfile:
-        yaml.dump(data_dict, outfile, default_flow_style=False)
+        outfile.write(yaml.dump(data_dict, default_flow_style=False))
 
 # Callback function for your Point Cloud Subscriber
 def pcl_callback(pcl_msg):
@@ -58,7 +66,7 @@ def pcl_callback(pcl_msg):
     LEAF_SIZE = 0.02
     vox.set_leaf_size(LEAF_SIZE, LEAF_SIZE, LEAF_SIZE)
     cloud_filtered = vox.filter()
-    # TODO: PassThrough Filter
+    # PassThrough Filter
     passthrough = cloud_filtered.make_passthrough_filter()
     filter_axis = 'z'
     passthrough.set_filter_field_name (filter_axis)
@@ -66,20 +74,20 @@ def pcl_callback(pcl_msg):
     axis_max = 0.9
     passthrough.set_filter_limits (axis_min, axis_max)
     cloud_filtered = passthrough.filter()
-    # TODO: RANSAC Plane Segmentation
+    # RANSAC Plane Segmentation
     seg = cloud_filtered.make_segmenter()
     seg.set_model_type(pcl.SACMODEL_PLANE)
     seg.set_method_type(pcl.SAC_RANSAC) 
     max_distance = 0.00175
     seg.set_distance_threshold(max_distance)
 
-    # TODO: Extract inliers and outliers
+    # Extract inliers and outliers
     inliers, coefficients = seg.segment()
     extracted_inliers = cloud_filtered.extract(inliers,negative=False)
     extracted_outliers = cloud_filtered.extract(inliers, negative=True)
 
 
-    # TODO: Euclidean Clustering
+    # Euclidean Clustering
     white_cloud = XYZRGB_to_XYZ(extracted_outliers)
     tree = white_cloud.make_kdtree()
     ec = white_cloud.make_EuclideanClusterExtraction()
@@ -89,7 +97,7 @@ def pcl_callback(pcl_msg):
     ec.set_SearchMethod(tree)
     cluster_indices = ec.Extract()
 
-    # TODO: Create Cluster-Mask Point Cloud to visualize each cluster separately
+    # Create Cluster-Mask Point Cloud to visualize each cluster separately
     cluster_color = get_color_list(len(cluster_indices))
 
     color_cluster_point_list = []
@@ -104,12 +112,12 @@ def pcl_callback(pcl_msg):
     cluster_out = pcl.PointCloud_PointXYZRGB()
     cluster_out.from_list(color_cluster_point_list)
 
-    # TODO: Convert PCL data to ROS messages
+    # Convert PCL data to ROS messages
     ros_cloud_objects = pcl_to_ros(extracted_outliers)
     ros_cloud_table = pcl_to_ros(extracted_inliers)
     ros_cluster_cloud = pcl_to_ros(cluster_out)
 
-    # TODO: Publish ROS messages
+    # Publish ROS messages
     pcl_objects_pub.publish(ros_cloud_objects)
     pcl_table_pub.publish(ros_cloud_table)
     pcl_cluster_pub.publish(ros_cluster_cloud)
@@ -200,63 +208,86 @@ def pr2_mover(object_list):
 
     # Loop through the pick list
     for index in range(0,len(object_list)):
-        object_name.data = object_list[index].label
+        existence, i = existanceCheck(object_list[index].label, object_list_param)
+        if existence:
+            object_name.data = str(object_list[index].label)
+            object_group = object_list_param[i]['group']
 
-        for i in range(0,len(object_list_param)):
-            if object_list[index].label == object_list_param[i]['name']:
-                object_group = object_list_param[i]['group']
+            # Get the PointCloud for a given object and obtain it's centroid
+            labels.append(object_list[index].label)
+            points_arr = ros_to_pcl(object_list[index].cloud).to_array()
+            pick_centroid = np.mean(points_arr, axis=0)[:3]
+            pick_pose.position.x = float(pick_centroid[0])
+            pick_pose.position.y = float(pick_centroid[1])
+            pick_pose.position.z = float(pick_centroid[2])
+            pick_pose.orientation.x = 0.0
+            pick_pose.orientation.y = 0.0
+            pick_pose.orientation.z = -90.0
+            pick_pose.orientation.w = 0.0
+            pick_centroids.append(pick_centroid)
 
-        # Get the PointCloud for a given object and obtain it's centroid
-        labels.append(object_list[index].label)
-        points_arr = ros_to_pcl(object_list[index].cloud).to_array()
-        pick_centroid = np.mean(points_arr, axis=0)[:3]
-        pick_pose.position.x = pick_centroid[0]
-        pick_pose.position.y = pick_centroid[1]
-        pick_pose.position.z = pick_centroid[2]
-        pick_pose.orientation.x = 0.0
-        pick_pose.orientation.y = 0.0
-        pick_pose.orientation.z = -90.0
-        pick_pose.orientation.w = 0.0
-        pick_centroids.append(pick_centroid)
+            # Create 'place_pose' for the object
+            for j in range(0,len(dropbox_param)):
+                if object_group == dropbox_param[j]["group"]:
+                    place_centroid = dropbox_param[j]["position"]
+                    place_pose.position.x = float(place_centroid[0])
+                    place_pose.position.y = float(place_centroid[1])
+                    place_pose.position.z = float(place_centroid[2])
+                    place_pose.orientation.x = 0.0
+                    place_pose.orientation.y = 0.0
+                    place_pose.orientation.z = 0.0
+                    place_pose.orientation.w = 0.0
+                    place_centroids.append(place_centroid)
 
-        # Create 'place_pose' for the object
-        for i in range(0,len(dropbox_param)):
-            if object_group == dropbox_param[i]["group"]:
-                place_centroid = dropbox_param[i]["position"]
-                place_pose.position.x = place_centroid[0]
-                place_pose.position.y = place_centroid[1]
-                place_pose.position.z = place_centroid[2]
-                place_pose.orientation.x = 0.0
-                place_pose.orientation.y = 0.0
-                place_pose.orientation.z = -90.0
-                place_pose.orientation.w = 0.0
-                place_centroids.append(place_centroid)
+                    # Assign the arm to be used for pick_place
+                    arm_name.data = dropbox_param[j]["name"]
 
-                # Assign the arm to be used for pick_place
-                arm_name.data = dropbox_param[i]["name"]
+            # Create a list of dictionaries (made with make_yaml_dict()) for later output to yaml format
 
-        # Create a list of dictionaries (made with make_yaml_dict()) for later output to yaml format
+            yaml_dict = make_yaml_dict(test_scene_num, arm_name, object_name, pick_pose, place_pose)
+            #print(type(yaml_dict))
+            #print(yaml_dict)
+            yaml_dict_list.append(yaml_dict)
+            # Wait for 'pick_place_routine' service to come up
+            rospy.wait_for_service('pick_place_routine')
 
-        yaml_dict = make_yaml_dict(test_scene_num, arm_name, object_name, pick_pose, place_pose)
-        yaml_dict_list.append(yaml_dict)
-        # Wait for 'pick_place_routine' service to come up
-        rospy.wait_for_service('pick_place_routine')
+            try:
+                pick_place_routine = rospy.ServiceProxy('pick_place_routine', PickPlace)
 
-        try:
-            pick_place_routine = rospy.ServiceProxy('pick_place_routine', PickPlace)
+                # Insert your message variables to be sent as a service request
+                
+                resp = pick_place_routine(test_scene_num, object_name, arm_name, pick_pose, place_pose)
 
-            # Insert your message variables to be sent as a service request
-            
-            resp = pick_place_routine(test_scene_num, object_name, arm_name, pick_pose, place_pose)
+                print ("Response: ",resp.success)
 
-            print ("Response: ",resp.success)
+            except rospy.ServiceException, e:
+                print "Service call failed: %s"%e
 
-        except rospy.ServiceException, e:
-            print "Service call failed: %s"%e
+        else:
+
+            print "error in recognition: %s not inclusive in the object list" %object_list[index].label
 
     # Output your request parameters into output yaml file
-    yaml_filename = "yaml_output.yaml"
+    yaml_filename = "output.yml"
     # make it to reflect the test case
+    
+    print(type(yaml_dict_list[0]["test_scene_num"]))
+    print(type(yaml_dict_list[0]["object_name"]))
+    print(type(yaml_dict_list[0]["arm_name"]))
+    print(type(yaml_dict_list[0]["pick_pose"]["position"]["x"]))
+    print(type(yaml_dict_list[0]["pick_pose"]["orientation"]["x"]))
+    print(type(yaml_dict_list[0]["pick_pose"]["position"]["y"]))
+    print(type(yaml_dict_list[0]["pick_pose"]["orientation"]["y"]))
+    print(type(yaml_dict_list[0]["pick_pose"]["position"]["z"]))
+    print(type(yaml_dict_list[0]["pick_pose"]["orientation"]["z"]))
+    print(type(yaml_dict_list[0]["place_pose"]["position"]["x"]))
+    print(type(yaml_dict_list[0]["place_pose"]["orientation"]["x"]))
+    print(type(yaml_dict_list[0]["place_pose"]["position"]["y"]))
+    print(type(yaml_dict_list[0]["place_pose"]["orientation"]["y"]))
+    print(type(yaml_dict_list[0]["place_pose"]["position"]["z"]))
+    print(type(yaml_dict_list[0]["place_pose"]["orientation"]["z"]))
+    
+    print(yaml_dict_list)
     send_to_yaml(yaml_filename, yaml_dict_list)
 
 
