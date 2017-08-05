@@ -79,7 +79,7 @@ def pcl_callback(pcl_msg):
 
     # Voxel Grid Downsampling
     vox = cloud_filtered.make_voxel_grid_filter()
-    LEAF_SIZE = 0.02
+    LEAF_SIZE = 0.005
     vox.set_leaf_size(LEAF_SIZE, LEAF_SIZE, LEAF_SIZE)
     cloud_filtered = vox.filter()
     
@@ -103,7 +103,7 @@ def pcl_callback(pcl_msg):
     seg = cloud_filtered.make_segmenter()
     seg.set_model_type(pcl.SACMODEL_PLANE)
     seg.set_method_type(pcl.SAC_RANSAC) 
-    max_distance = 0.00175
+    max_distance = 0.00075
     seg.set_distance_threshold(max_distance)
 
     # Extract inliers and outliers
@@ -120,9 +120,9 @@ def pcl_callback(pcl_msg):
     white_cloud = XYZRGB_to_XYZ(extracted_outliers)
     tree = white_cloud.make_kdtree()
     ec = white_cloud.make_EuclideanClusterExtraction()
-    ec.set_ClusterTolerance(0.025)
-    ec.set_MinClusterSize(20)
-    ec.set_MaxClusterSize(300)
+    ec.set_ClusterTolerance(0.005)
+    ec.set_MinClusterSize(80)
+    ec.set_MaxClusterSize(2500)
     ec.set_SearchMethod(tree)
     cluster_indices = ec.Extract()
 

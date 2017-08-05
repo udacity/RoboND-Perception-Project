@@ -61,9 +61,10 @@ y_train = np.array(label_list)
 # Convert label strings to numerical encoding
 encoder = LabelEncoder()
 y_train = encoder.fit_transform(y_train)
+#all glue C = 100,1 gamma = 1e-4,1e-2
 
 # Create classifier
-clf = svm.SVC(C=100.0, cache_size=200, class_weight=None, coef0=0.0,
+clf = svm.SVC(C=1000.0, cache_size=200, class_weight=None, coef0=0.0,
     decision_function_shape=None, degree=3, gamma=1e-04, kernel='rbf',
     max_iter=-1, probability=False, random_state=None, shrinking=True,
     tol=0.001, verbose=False)
