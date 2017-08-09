@@ -1,6 +1,6 @@
 sensors:
   - sensor_plugin: occupancy_map_monitor/PointCloudOctomapUpdater
-    point_cloud_topic: /pr2/voxel_grid/points #replace with /pr2/3d_map/points when running your own code
+    point_cloud_topic: /pr2/3d_map/points #/pr2/voxel_grid/points #replace with /pr2/3d_map/points when running your own code
     max_range: 2.5 #default value: 2.5
     frame_subsample: 1 #default value: 1
     point_subsample: 1 #default value: 1

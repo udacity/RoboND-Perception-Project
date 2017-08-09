@@ -32,7 +32,7 @@ class perceptionState():
         self.test_scene_num = 0
         self.object_to_pick = 0
         self.rotated = False
-
+        self.collsion_cloud = None
     def scene_check(self, launch_file): #../launch/pick_place_project.launch
         e = xml.etree.ElementTree.parse(launch_file).getroot()
 
@@ -50,8 +50,12 @@ class perceptionState():
                     challange = challange_regex.search(scene_num.group(1))
                     self.test_scene_num = challange.group(1)
                 break
-        logging.debug('Test_scene_num: (%s)' % self.test_scene_num)
-
+        logging.debug('Test_scene_num: %s' % self.test_scene_num)
+    def set_collision_cloud(self, cloud):
+        self.collsion_cloud =cloud
+        
+    def get_collision_cloud(self):
+        return self.collsion_cloud
 # Helper function to existence check
 
 def existanceCheck(objectName, object_list_param):
@@ -89,7 +93,7 @@ def pcl_callback(pcl_msg):
 
     # Convert ROS msg to PCL data
     pcl_data = ros_to_pcl(pcl_msg)
-    # TODO: Statistical Outlier Filtering
+    # Statistical Outlier Filtering
     # Much like the previous filters, we start by creating a filter object: 
     outlier_filter = pcl_data.make_statistical_outlier_filter()
 
@@ -141,7 +145,7 @@ def pcl_callback(pcl_msg):
 
     # Publish a point cloud to `/pr2/3D_map/points`.  
     # Telling the robot where objects are in the environment in order to avoid collisions.
-    # TODO: check if the collision map was maded by checking perceptionState.rotated == true
+    # check if the collision map was maded by checking perceptionState.rotated == true
     collision_map_3d = pcl_to_ros(cloud_filtered)
     collision_map_pub.publish(collision_map_3d)
 
@@ -217,12 +221,11 @@ def pcl_callback(pcl_msg):
         detected_objects.append(do)
 
     rospy.loginfo('Detected {} objects: {}'.format(len(detected_objects_labels), detected_objects_labels))
-    logging.debug('Detected %s objects: %s' % (len(detected_objects_labels), detected_objects_labels))
+    logging.debug('Detected %s' % (len(detected_objects_labels)))
 
     # Publish the list of detected objects
     # This is the output you'll need to complete the upcoming project!
     detected_objects_pub.publish(detected_objects)
-
 
     # Suggested location for where to invoke your pr2_mover() function within pcl_callback()
     # Could add some logic to determine whether or not your object detections are robust
@@ -244,8 +247,7 @@ def pr2_mover(object_list):
 
     # Parse parameters into individual variables
     test_scene_num = Int32()
-
-    test_scene_num.data = int(perception_state.test_scene_num)-1
+    test_scene_num.data = int(perception_state.test_scene_num) -1
 
     object_name = String()
     arm_name = String()
@@ -256,17 +258,17 @@ def pr2_mover(object_list):
     # But just rotation does not do any thing here
     # This can be accomplished by publishing joint angle value(in radians) to `/pr2/world_joint_controller/command`
     
-    rate = rospy.Rate(0.125) # 8 second to finish 1000/125 = 8
-    pr2_joint_pub.publish(-1.57)
-    rate.sleep()
-    pr2_joint_pub.publish(1.57)
-    rate.sleep()
-    pr2_joint_pub.publish(1.57)
-    rate.sleep()
+    # rate = rospy.Rate(0.125) # 8 second to finish 1000/125 = 8
+    # pr2_joint_pub.publish(-1.57)
+    # rate.sleep()
+    # pr2_joint_pub.publish(1.57)
+    # rate.sleep()
+    # pr2_joint_pub.publish(1.57)
+    # rate.sleep()
 
-    # Rotate the robot back to its original state.
-    pr2_joint_pub.publish(0)
-    rate.sleep()
+    # # Rotate the robot back to its original state.
+    # pr2_joint_pub.publish(0)
+    # rate.sleep()
 
     yaml_dict_list = []
     labels = []
@@ -320,15 +322,15 @@ def pr2_mover(object_list):
                 pick_place_routine = rospy.ServiceProxy('pick_place_routine', PickPlace)
 
                 # Insert your message variables to be sent as a service request
-                logging.debug('Sending: (%s, %s, %s, %s, %s)' % (test_scene_num, object_name, arm_name, pick_pose, place_pose))
+                logging.debug('Sending: (%s, %s, %s, %s, %s)' % (str(test_scene_num), str(object_name), str(arm_name), str(pick_pose), str(place_pose)))
 
                 resp = pick_place_routine(test_scene_num, object_name, arm_name, pick_pose, place_pose)
 
                 print ("Response: ",resp.success)
-                logging.debug('Response: (%s)' % resp.success)
+                logging.debug('Response: (%s)' % (str(resp.success)))
             except rospy.ServiceException, e:
                 print "Service call failed: %s"%e
-                logging.warning('Service call failed: (%s)' % e)
+                logging.warning('Service call failed: (%s)' % (str(e)))
         else:
 
             print "error in recognition: %s not inclusive in the object list" %object_list[index].label
