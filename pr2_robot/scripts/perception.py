@@ -24,8 +24,36 @@ from pr2_robot.srv import *
 from rospy_message_converter import message_converter
 import yaml
 import re
+import xml.etree.ElementTree
+import logging
+
+class perceptionState():
+    def __init__(self, *args, **kwargs):
+        self.test_scene_num = 0
+        self.object_to_pick = 0
+        self.rotated = False
+
+    def scene_check(self, launch_file): #../launch/pick_place_project.launch
+        e = xml.etree.ElementTree.parse(launch_file).getroot()
+
+        world_num_regex = re.compile(r'worlds/(.*).world')
+        scene_num_regex = re.compile(r'\w+(\d+)')
+        challange_regex = re.compile(r'(\w+)')
+
+        for atype in e.findall('.//include/arg'):
+            scene_num = world_num_regex.search(atype.get('value'))
+            if scene_num is not None:
+                num = scene_num_regex.search(scene_num.group(1))
+                if num is not None:
+                    self.test_scene_num = num.group(1)
+                else:
+                    challange = challange_regex.search(scene_num.group(1))
+                    self.test_scene_num = challange.group(1)
+                break
+        logging.debug('Test_scene_num: (%s)' % self.test_scene_num)
 
 # Helper function to existence check
+
 def existanceCheck(objectName, object_list_param):
     for index, object in enumerate(object_list_param):
         if object["name"] == objectName:
@@ -113,6 +141,7 @@ def pcl_callback(pcl_msg):
 
     # Publish a point cloud to `/pr2/3D_map/points`.  
     # Telling the robot where objects are in the environment in order to avoid collisions.
+    # TODO: check if the collision map was maded by checking perceptionState.rotated == true
     collision_map_3d = pcl_to_ros(cloud_filtered)
     collision_map_pub.publish(collision_map_3d)
 
@@ -188,6 +217,7 @@ def pcl_callback(pcl_msg):
         detected_objects.append(do)
 
     rospy.loginfo('Detected {} objects: {}'.format(len(detected_objects_labels), detected_objects_labels))
+    logging.debug('Detected %s objects: %s' % (len(detected_objects_labels), detected_objects_labels))
 
     # Publish the list of detected objects
     # This is the output you'll need to complete the upcoming project!
@@ -201,7 +231,7 @@ def pcl_callback(pcl_msg):
         pr2_mover(detected_objects)
     except rospy.ROSInterruptException:
         pass
-
+        logging.warning('ROS interrupt: (%s)' % (rospy.ROSInterruptException))
 # function to load parameters and request PickPlace service
 def pr2_mover(object_list):
 
@@ -214,34 +244,29 @@ def pr2_mover(object_list):
 
     # Parse parameters into individual variables
     test_scene_num = Int32()
-    test_scene_num.data = 1
-    #regex to find the world name and extract it
-    # if len(object_list_param) == 8:
-    #     test_scene_num = 3
-    # elif len(object_list_param) == 5:
-    #     test_scene_num = 2
-    # elif len(object_list_param) == 3:
-    #     test_scene_num = 1
-    # else:
-    #     test_scene_num = 0
+
+    test_scene_num.data = int(perception_state.test_scene_num)-1
+
     object_name = String()
     arm_name = String()
     pick_pose = Pose()
     place_pose = Pose()
     
     # TODO: Rotate PR2 in place to capture side tables for the collision map
+    # But just rotation does not do any thing here
     # This can be accomplished by publishing joint angle value(in radians) to `/pr2/world_joint_controller/command`
-    # rate = rospy.Rate(0.125)
-    # pr2_joint_pub.publish(-1.57)
-    # rate.sleep()
-    # pr2_joint_pub.publish(1.57)
-    # rate.sleep()
-    # pr2_joint_pub.publish(1.57)
-    # rate.sleep()
+    
+    rate = rospy.Rate(0.125) # 8 second to finish 1000/125 = 8
+    pr2_joint_pub.publish(-1.57)
+    rate.sleep()
+    pr2_joint_pub.publish(1.57)
+    rate.sleep()
+    pr2_joint_pub.publish(1.57)
+    rate.sleep()
 
-    # # Rotate the robot back to its original state.
-    # pr2_joint_pub.publish(0)
-    # rate.sleep()
+    # Rotate the robot back to its original state.
+    pr2_joint_pub.publish(0)
+    rate.sleep()
 
     yaml_dict_list = []
     labels = []
@@ -295,18 +320,19 @@ def pr2_mover(object_list):
                 pick_place_routine = rospy.ServiceProxy('pick_place_routine', PickPlace)
 
                 # Insert your message variables to be sent as a service request
-                
+                logging.debug('Sending: (%s, %s, %s, %s, %s)' % (test_scene_num, object_name, arm_name, pick_pose, place_pose))
+
                 resp = pick_place_routine(test_scene_num, object_name, arm_name, pick_pose, place_pose)
 
                 print ("Response: ",resp.success)
-
+                logging.debug('Response: (%s)' % resp.success)
             except rospy.ServiceException, e:
                 print "Service call failed: %s"%e
-
+                logging.warning('Service call failed: (%s)' % e)
         else:
 
             print "error in recognition: %s not inclusive in the object list" %object_list[index].label
-
+            logging.debug('error in recognition: %s not inclusive in the object list' % object_list[index].label)
     # Output your request parameters into output yaml file
     yaml_filename = "output.yml"
     # make it to reflect the test case
@@ -314,10 +340,20 @@ def pr2_mover(object_list):
 
 
 if __name__ == '__main__':
-    # TODO: Read the pick_place_project.launch xml file and regex line 13 <arg name="world_name" value="$(find pr2_robot)/worlds/test1.world"/>
-
+    logging.basicConfig(filename='debuggingInfo.txt',level=logging.DEBUG, format=' %(asctime)s -- %(message)s')
+    #logging.disable(logging.CRITICAL)
+    logging.debug('Start of program')
+    #perception state class initialisation
+    perception_state = perceptionState()
+    # Reading the pick_place_project.launch xml file and regex line 13 <arg name="world_name" value="$(find pr2_robot)/worlds/test1.world"/>
+    # call xml reader to parse test_scene_num
+    #checking which scene will be used, checking only once in this python script 
+    #before going into the service subroutine updating the cls state
+    perception_state.scene_check('../launch/pick_place_project.launch')
+    logging.debug('Initialisation started')
     # ROS node initialization
     rospy.init_node('clustering', anonymous=True)
+    
 
     # Create Subscribers
     #pcl_sub = rospy.Subscriber("/sensor_stick/point_cloud", pc2.PointCloud2, pcl_callback, queue_size=1)
@@ -332,7 +368,7 @@ if __name__ == '__main__':
     detected_objects_pub = rospy.Publisher("/detected_objects", DetectedObjectsArray, queue_size=1)
     collision_map_pub = rospy.Publisher("/pr2/3D_map/points", PointCloud2, queue_size=1)
     pr2_joint_pub = rospy.Publisher("/pr2/world_joint_controller/command", Float64, queue_size=1)
-    pr2_joint_pub = rospy.Publisher("/pr2/world_joint_controller/command", Float64, queue_size=1)
+    #pr2_joint_pub = rospy.Publisher("/pr2/world_joint_controller/command", Float64, queue_size=1)
     #  Load Model From disk
     model = pickle.load(open('model.sav', 'rb'))
     clf = model['classifier']
