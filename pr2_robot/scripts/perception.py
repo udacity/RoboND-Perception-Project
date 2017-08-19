@@ -33,6 +33,8 @@ class perceptionState():
         self.object_to_pick = 0
         self.rotated = False
         self.collsion_cloud = None
+        self.body_angle = [-1.57,1.57, 1.57, 0, 0]
+        self.body_angle_index = 0
     def scene_check(self, launch_file): #../launch/pick_place_project.launch
         e = xml.etree.ElementTree.parse(launch_file).getroot()
 
@@ -149,92 +151,107 @@ def pcl_callback(pcl_msg):
     collision_map_3d = pcl_to_ros(cloud_filtered)
     collision_map_pub.publish(collision_map_3d)
 
-    # Euclidean Clustering
-    white_cloud = XYZRGB_to_XYZ(extracted_outliers)
-    tree = white_cloud.make_kdtree()
-    ec = white_cloud.make_EuclideanClusterExtraction()
-    ec.set_ClusterTolerance(0.005)
-    ec.set_MinClusterSize(80)
-    ec.set_MaxClusterSize(2500)
-    ec.set_SearchMethod(tree)
-    cluster_indices = ec.Extract()
+    # 10 second to finish 1000/5 = 20
+    rate = rospy.Rate(0.08)
 
-    # Create Cluster-Mask Point Cloud to visualize each cluster separately
-    cluster_color = get_color_list(len(cluster_indices))
+    if perception_state.rotated == True:
 
-    color_cluster_point_list = []
+        # Euclidean Clustering
+        white_cloud = XYZRGB_to_XYZ(extracted_outliers)
+        tree = white_cloud.make_kdtree()
+        ec = white_cloud.make_EuclideanClusterExtraction()
+        ec.set_ClusterTolerance(0.005)
+        ec.set_MinClusterSize(80)
+        ec.set_MaxClusterSize(2500)
+        ec.set_SearchMethod(tree)
+        cluster_indices = ec.Extract()
 
-    for j, indices in enumerate(cluster_indices):
-        for i, indice in enumerate(indices):
-            color_cluster_point_list.append([white_cloud[indice][0],
-                                            white_cloud[indice][1],
-                                            white_cloud[indice][2],
-                                            rgb_to_float(cluster_color[j])])
+        # Create Cluster-Mask Point Cloud to visualize each cluster separately
+        cluster_color = get_color_list(len(cluster_indices))
 
-    cluster_out = pcl.PointCloud_PointXYZRGB()
-    cluster_out.from_list(color_cluster_point_list)
+        color_cluster_point_list = []
 
-    # Convert PCL data to ROS messages
-    ros_cloud_objects = pcl_to_ros(extracted_outliers)
-    ros_cloud_table = pcl_to_ros(extracted_inliers)
-    ros_cluster_cloud = pcl_to_ros(cluster_out)
+        for j, indices in enumerate(cluster_indices):
+            for i, indice in enumerate(indices):
+                color_cluster_point_list.append([white_cloud[indice][0],
+                                                white_cloud[indice][1],
+                                                white_cloud[indice][2],
+                                                rgb_to_float(cluster_color[j])])
 
-    # Publish ROS messages
-    pcl_objects_pub.publish(ros_cloud_objects)
-    pcl_table_pub.publish(ros_cloud_table)
-    pcl_cluster_pub.publish(ros_cluster_cloud)
+        cluster_out = pcl.PointCloud_PointXYZRGB()
+        cluster_out.from_list(color_cluster_point_list)
 
-# Exercise-3 TODOs:
+        # Convert PCL data to ROS messages
+        ros_cloud_objects = pcl_to_ros(extracted_outliers)
+        ros_cloud_table = pcl_to_ros(extracted_inliers)
+        ros_cluster_cloud = pcl_to_ros(cluster_out)
 
-    detected_objects_labels = []
-    detected_objects = []
+        # Publish ROS messages
+        pcl_objects_pub.publish(ros_cloud_objects)
+        pcl_table_pub.publish(ros_cloud_table)
+        pcl_cluster_pub.publish(ros_cluster_cloud)
 
-    for index, pts_list in enumerate(cluster_indices):
-        # Grab the points for the cluster
-        pcl_cluster = extracted_outliers.extract(pts_list)
-        # convert the cluster from pcl to ROS using helper function
-        ros_cluster = pcl_to_ros(pcl_cluster)
-        # Compute the associated feature vector
-        
-        # Extract histogram features
-        chists = compute_color_histograms(ros_cluster, using_hsv=True)
-        normals = get_normals(ros_cluster)
-        nhists = compute_normal_histograms(normals)
-        feature = np.concatenate((chists, nhists))
-        #detected_objects_labels.append([feature, index])
+    # Exercise-3 TODOs:
 
-        # Make the prediction, retrieve the label for the result
-        # and add it to detected_objects_labels list
-        prediction = clf.predict(scaler.transform(feature.reshape(1,-1)))
-        label = encoder.inverse_transform(prediction)[0]
-        detected_objects_labels.append(label)
+        detected_objects_labels = []
+        detected_objects = []
 
-        # Publish a label into RViz
-        label_pos = list(white_cloud[pts_list[0]])
-        label_pos[2] += .4
-        object_markers_pub.publish(make_label(label, label_pos, index))
+        for index, pts_list in enumerate(cluster_indices):
+            # Grab the points for the cluster
+            pcl_cluster = extracted_outliers.extract(pts_list)
+            # convert the cluster from pcl to ROS using helper function
+            ros_cluster = pcl_to_ros(pcl_cluster)
+            # Compute the associated feature vector
+            
+            # Extract histogram features
+            chists = compute_color_histograms(ros_cluster, using_hsv=True)
+            normals = get_normals(ros_cluster)
+            nhists = compute_normal_histograms(normals)
+            feature = np.concatenate((chists, nhists))
+            #detected_objects_labels.append([feature, index])
 
-        # Add the detected object to the list of detected objects.
-        do = DetectedObject()
-        do.label = label
-        do.cloud = ros_cluster
-        detected_objects.append(do)
+            # Make the prediction, retrieve the label for the result
+            # and add it to detected_objects_labels list
+            prediction = clf.predict(scaler.transform(feature.reshape(1,-1)))
+            label = encoder.inverse_transform(prediction)[0]
+            detected_objects_labels.append(label)
 
-    rospy.loginfo('Detected {} objects: {}'.format(len(detected_objects_labels), detected_objects_labels))
-    logging.debug('Detected %s' % (len(detected_objects_labels)))
+            # Publish a label into RViz
+            label_pos = list(white_cloud[pts_list[0]])
+            label_pos[2] += .4
+            object_markers_pub.publish(make_label(label, label_pos, index))
 
-    # Publish the list of detected objects
-    # This is the output you'll need to complete the upcoming project!
-    detected_objects_pub.publish(detected_objects)
+            # Add the detected object to the list of detected objects.
+            do = DetectedObject()
+            do.label = label
+            do.cloud = ros_cluster
+            detected_objects.append(do)
 
-    # Suggested location for where to invoke your pr2_mover() function within pcl_callback()
-    # Could add some logic to determine whether or not your object detections are robust
-    # before calling pr2_mover()
-    try:
-        pr2_mover(detected_objects)
-    except rospy.ROSInterruptException:
-        pass
-        logging.warning('ROS interrupt: (%s)' % (rospy.ROSInterruptException))
+        rospy.loginfo('Detected {} objects: {}'.format(len(detected_objects_labels), detected_objects_labels))
+        logging.debug('Detected %s' % (len(detected_objects_labels)))
+
+        # Publish the list of detected objects
+        # This is the output you'll need to complete the upcoming project!
+        detected_objects_pub.publish(detected_objects)
+
+        # Suggested location for where to invoke your pr2_mover() function within pcl_callback()
+        # Could add some logic to determine whether or not your object detections are robust
+        # before calling pr2_mover()
+        try:
+            pr2_mover(detected_objects)
+        except rospy.ROSInterruptException:
+            pass
+            logging.warning('ROS interrupt: (%s)' % (rospy.ROSInterruptException))
+    else:
+        # TODO: Rotate PR2 in place to capture side tables for the collision map
+        #But just rotation does not do any thing here
+        #This can be accomplished by publishing joint angle value(in radians) to `/pr2/world_joint_controller/command`
+        pr2_joint_pub.publish(perception_state.body_angle[perception_state.body_angle_index])
+        rate.sleep()
+        perception_state.body_angle_index += 1
+        if perception_state.body_angle_index == 5:
+            perception_state.rotated = True
+
 # function to load parameters and request PickPlace service
 def pr2_mover(object_list):
 
@@ -254,21 +271,7 @@ def pr2_mover(object_list):
     pick_pose = Pose()
     place_pose = Pose()
     
-    # TODO: Rotate PR2 in place to capture side tables for the collision map
-    # But just rotation does not do any thing here
-    # This can be accomplished by publishing joint angle value(in radians) to `/pr2/world_joint_controller/command`
     
-    # rate = rospy.Rate(0.125) # 8 second to finish 1000/125 = 8
-    # pr2_joint_pub.publish(-1.57)
-    # rate.sleep()
-    # pr2_joint_pub.publish(1.57)
-    # rate.sleep()
-    # pr2_joint_pub.publish(1.57)
-    # rate.sleep()
-
-    # # Rotate the robot back to its original state.
-    # pr2_joint_pub.publish(0)
-    # rate.sleep()
 
     yaml_dict_list = []
     labels = []
@@ -322,7 +325,7 @@ def pr2_mover(object_list):
                 pick_place_routine = rospy.ServiceProxy('pick_place_routine', PickPlace)
 
                 # Insert your message variables to be sent as a service request
-                logging.debug('Sending: (%s, %s, %s, %s, %s)' % (str(test_scene_num), str(object_name), str(arm_name), str(pick_pose), str(place_pose)))
+                logging.debug('Sending: (%s, %s, %s, %s, %s)' % (str(test_scene_num+1), str(object_name), str(arm_name), str(pick_pose), str(place_pose)))
 
                 resp = pick_place_routine(test_scene_num, object_name, arm_name, pick_pose, place_pose)
 
