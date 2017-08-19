@@ -55,7 +55,7 @@ class perceptionState():
         logging.debug('Test_scene_num: %s' % self.test_scene_num)
     def set_collision_cloud(self, cloud):
         self.collsion_cloud =cloud
-        
+
     def get_collision_cloud(self):
         return self.collsion_cloud
 # Helper function to existence check
@@ -64,7 +64,7 @@ def existanceCheck(objectName, object_list_param):
     for index, object in enumerate(object_list_param):
         if object["name"] == objectName:
             return True, index
-    
+
     return False, -1
 
 # Helper function to get surface normals
@@ -96,7 +96,7 @@ def pcl_callback(pcl_msg):
     # Convert ROS msg to PCL data
     pcl_data = ros_to_pcl(pcl_msg)
     # Statistical Outlier Filtering
-    # Much like the previous filters, we start by creating a filter object: 
+    # Much like the previous filters, we start by creating a filter object:
     outlier_filter = pcl_data.make_statistical_outlier_filter()
 
     # Set the number of neighboring points to analyze for any given point
@@ -116,7 +116,7 @@ def pcl_callback(pcl_msg):
     LEAF_SIZE = 0.005
     vox.set_leaf_size(LEAF_SIZE, LEAF_SIZE, LEAF_SIZE)
     cloud_filtered = vox.filter()
-    
+
     # PassThrough Filter z
     passthrough = cloud_filtered.make_passthrough_filter()
     filter_axis = 'z'
@@ -136,7 +136,7 @@ def pcl_callback(pcl_msg):
     # RANSAC Plane Segmentation
     seg = cloud_filtered.make_segmenter()
     seg.set_model_type(pcl.SACMODEL_PLANE)
-    seg.set_method_type(pcl.SAC_RANSAC) 
+    seg.set_method_type(pcl.SAC_RANSAC)
     max_distance = 0.00075
     seg.set_distance_threshold(max_distance)
 
@@ -145,7 +145,7 @@ def pcl_callback(pcl_msg):
     extracted_inliers = cloud_filtered.extract(inliers,negative=False)
     extracted_outliers = cloud_filtered.extract(inliers, negative=True)
 
-    # Publish a point cloud to `/pr2/3D_map/points`.  
+    # Publish a point cloud to `/pr2/3D_map/points`.
     # Telling the robot where objects are in the environment in order to avoid collisions.
     # check if the collision map was maded by checking perceptionState.rotated == true
     collision_map_3d = pcl_to_ros(cloud_filtered)
@@ -202,7 +202,7 @@ def pcl_callback(pcl_msg):
             # convert the cluster from pcl to ROS using helper function
             ros_cluster = pcl_to_ros(pcl_cluster)
             # Compute the associated feature vector
-            
+
             # Extract histogram features
             chists = compute_color_histograms(ros_cluster, using_hsv=True)
             normals = get_normals(ros_cluster)
@@ -270,8 +270,8 @@ def pr2_mover(object_list):
     arm_name = String()
     pick_pose = Pose()
     place_pose = Pose()
-    
-    
+
+
 
     yaml_dict_list = []
     labels = []
@@ -325,7 +325,7 @@ def pr2_mover(object_list):
                 pick_place_routine = rospy.ServiceProxy('pick_place_routine', PickPlace)
 
                 # Insert your message variables to be sent as a service request
-                logging.debug('Sending: (%s, %s, %s, %s, %s)' % (str(test_scene_num+1), str(object_name), str(arm_name), str(pick_pose), str(place_pose)))
+                logging.debug('Sending: (%s, %s, %s, %s, %s)' % (str(int(test_scene_num.data)+1), str(object_name), str(arm_name), str(pick_pose), str(place_pose)))
 
                 resp = pick_place_routine(test_scene_num, object_name, arm_name, pick_pose, place_pose)
 
@@ -352,13 +352,13 @@ if __name__ == '__main__':
     perception_state = perceptionState()
     # Reading the pick_place_project.launch xml file and regex line 13 <arg name="world_name" value="$(find pr2_robot)/worlds/test1.world"/>
     # call xml reader to parse test_scene_num
-    #checking which scene will be used, checking only once in this python script 
+    #checking which scene will be used, checking only once in this python script
     #before going into the service subroutine updating the cls state
     perception_state.scene_check('../launch/pick_place_project.launch')
     logging.debug('Initialisation started')
     # ROS node initialization
     rospy.init_node('clustering', anonymous=True)
-    
+
 
     # Create Subscribers
     #pcl_sub = rospy.Subscriber("/sensor_stick/point_cloud", pc2.PointCloud2, pcl_callback, queue_size=1)
