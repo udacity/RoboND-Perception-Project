@@ -108,8 +108,8 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
 
   moveit::planning_interface::MoveGroupInterface::Plan right_arm_plan, left_arm_plan;
 
-  bool right_success = right_move_group.move();
-  bool left_success = left_move_group.move();
+  bool right_success = right_move_group.move() == moveit::planning_interface::MoveItErrorCode::SUCCESS;
+  bool left_success = left_move_group.move() == moveit::planning_interface::MoveItErrorCode::SUCCESS;
 
   ROS_INFO_NAMED("tutorial", "Visualizing plan 1 (pose goal) %s", (right_success & left_success) ? "" : "FAILED");
 
@@ -251,7 +251,7 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
 
     // set target pose
     right_move_group.setPoseTarget(pose_list[i]);
-    right_success = right_move_group.plan(right_arm_plan);
+    right_success = right_move_group.plan(right_arm_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS;
     ROS_INFO("Visualizing plan to target: %s",
              right_success ? "SUCCEEDED" : "FAILED");
 
@@ -270,7 +270,7 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
     right_move_group.setStartStateToCurrentState();
     pose_list[i].position.z = pose_list[i].position.z-0.07;
     right_move_group.setPoseTarget(pose_list[i]);
-    right_success = right_move_group.plan(right_arm_plan);
+    right_success = right_move_group.plan(right_arm_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS;
     ROS_INFO("Visualizing plan to target: %s",
              right_success ? "SUCCEEDED" : "FAILED");
     // We can also visualize the plan as a line with markers in Rviz.
@@ -295,7 +295,7 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
     right_move_group.setStartStateToCurrentState();
     pose_list[i].position.z = pose_list[i].position.z+0.12;
     right_move_group.setPoseTarget(pose_list[i]);
-    right_success = right_move_group.plan(right_arm_plan);
+    right_success = right_move_group.plan(right_arm_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS;
     ROS_INFO("Visualizing plan to target: %s",
              right_success ? "SUCCEEDED" : "FAILED");
     // visualize the plan in Rviz.
@@ -311,7 +311,7 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
     //drop the ball
     right_move_group.setStartStateToCurrentState();
     right_move_group.setPoseTarget(drop_list[i]);
-    right_success = right_move_group.plan(right_arm_plan);
+    right_success = right_move_group.plan(right_arm_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS;
     ROS_INFO("Visualizing plan to target: %s",
              right_success ? "SUCCEEDED" : "FAILED");
 
@@ -344,8 +344,8 @@ PR2Motion::PR2Motion(ros::NodeHandle nh)
 
   right_move_group.setNamedTarget("RIGHT_ARM_INITIAL_POSE");
   left_move_group.setNamedTarget("LEFT_ARM_INITIAL_POSE");
-  right_success = right_move_group.move();
-  left_success = left_move_group.move();
+  right_success = right_move_group.move() == moveit::planning_interface::MoveItErrorCode::SUCCESS;
+  left_success = left_move_group.move() == moveit::planning_interface::MoveItErrorCode::SUCCESS;
 }
 
 
@@ -405,7 +405,7 @@ bool PR2Motion::OperateRightGripper(const bool &close_gripper)
   right_gripper_group.setJointValueTarget(gripper_joint_positions);
   ros::Duration(1.5).sleep();
 
-  bool success = right_gripper_group.move();
+  bool success = right_gripper_group.move() == moveit::planning_interface::MoveItErrorCode::SUCCESS;
   return success;
 }
 
@@ -437,7 +437,7 @@ bool PR2Motion::OperateLeftGripper(const bool &close_gripper)
   left_gripper_group.setJointValueTarget(gripper_joint_positions);
   ros::Duration(1.5).sleep();
 
-  bool success = left_gripper_group.move();
+  bool success = left_gripper_group.move() == moveit::planning_interface::MoveItErrorCode::SUCCESS;
   return success;
 }
 
