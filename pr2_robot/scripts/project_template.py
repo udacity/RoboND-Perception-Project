@@ -53,12 +53,12 @@ def pcl_callback(pcl_msg):
     # Exercise-2 TODOs:
 
     # TODO: Convert ROS msg to PCL data
-    # cloud = ros_to_pcl(pcl_msg)
-    cloud_filtered = ros_to_pcl(pcl_msg)
+    cloud = ros_to_pcl(pcl_msg)
+
     
     # TODO: Statistical Outlier Filtering
     # Much like the previous filters, we start by creating a filter object:
-    outlier_filter = cloud_filtered.make_statistical_outlier_filter()
+    outlier_filter = cloud.make_statistical_outlier_filter()
 
     # Set the number of neighboring points to analyze for any given point
     outlier_filter.set_mean_k(5)
@@ -100,7 +100,8 @@ def pcl_callback(pcl_msg):
     filter_axis = 'y'
     passthrough.set_filter_field_name(filter_axis)
 
-    axis_min, axis_max = -0.4, 0.4
+    axis_min = -0.4
+    axis_max = 0.4
     passthrough.set_filter_limits(axis_min, axis_max)
 
     # Finally use the filter function to obtain the resultant point cloud.
@@ -212,24 +213,16 @@ def pcl_callback(pcl_msg):
     # Publish the list of detected objects
     detected_objects_pub.publish(detected_objects)
 
-    object_list_param = rospy.get_param('/object_list')
-
-    pick_list_objects = []
-    for i in range(len(object_list_param)):
-        pick_list_objects.append(object_list_param[i]['name'])
+    
 
     # Suggested location for where to invoke your pr2_mover() function within pcl_callback()
     # Could add some logic to determine whether or not your object detections are robust
     # before calling pr2_mover()
-    pick_set_objects = set(pick_list_objects)
-    detected_set_objects = set(detected_objects_labels)
 
-
-    if detected_set_objects == pick_set_objects:
-        try:
-            pr2_mover(detected_objects)
-        except rospy.ROSInterruptException:
-            pass
+    try:
+        pr2_mover(detected_objects)
+    except rospy.ROSInterruptException:
+        pass
 
 
 # function to load parameters and request PickPlace service
@@ -281,35 +274,38 @@ def pr2_mover(object_list):
                 PICK_POSE.position.y = centroids_float[1]
                 PICK_POSE.position.z = centroids_float[2]
 
+                # TODO: Assign the arm to be used for pick_place
+                OBJECT_GROUP = object_list_param[i]['group']
+                WHICH_ARM.data = 'right' if  OBJECT_GROUP == 'green' else 'left'
 
-            # TODO: Create 'place_pose' for the object
-            DROPBOX_POSITION = left_dropbox if WHICH_ARM.data == 'left' else right_dropbox
+                # TODO: Create 'place_pose' for the object
+                DROPBOX_POSITION = left_dropbox if WHICH_ARM.data == 'left' else right_dropbox
 
-            PLACE_POSE.position.x = DROPBOX_POSITION[0]
-            PLACE_POSE.position.y = DROPBOX_POSITION[1]
-            PLACE_POSE.position.z = DROPBOX_POSITION[2]
+                PLACE_POSE.position.x = DROPBOX_POSITION[0]
+                PLACE_POSE.position.y = DROPBOX_POSITION[1]
+                PLACE_POSE.position.z = DROPBOX_POSITION[2]
 
-            # TODO: Assign the arm to be used for pick_place
-            OBJECT_GROUP = object_list_param[i]['group']
-            WHICH_ARM.data = 'right' if  OBJECT_GROUP == 'green' else 'left'
+            
 
-            # TODO: Create a list of dictionaries (made with make_yaml_dict()) for later output to yaml format
-            yaml_dict = make_yaml_dict(TEST_SCENE_NUM, WHICH_ARM, OBJECT_NAME, PICK_POSE, PLACE_POSE)
-            dict_list.append(yaml_dict)
+                # TODO: Create a list of dictionaries (made with make_yaml_dict()) for later output to yaml format
+                yaml_dict = make_yaml_dict(TEST_SCENE_NUM, WHICH_ARM, OBJECT_NAME, PICK_POSE, PLACE_POSE)
+                dict_list.append(yaml_dict)
 
-            # Wait for 'pick_place_routine' service to come up
-            rospy.wait_for_service('pick_place_routine')
+                # Wait for 'pick_place_routine' service to come up
+                rospy.wait_for_service('pick_place_routine')
 
-            try:
-                pick_place_routine = rospy.ServiceProxy('pick_place_routine', PickPlace)
+                try:
+                    pick_place_routine = rospy.ServiceProxy('pick_place_routine', PickPlace)
 
-                # TODO: Insert your message variables to be sent as a service request
-                resp = pick_place_routine(TEST_SCENE_NUM, OBJECT_NAME, WHICH_ARM, PICK_POSE, PLACE_POSE)
+                    # TODO: Insert your message variables to be sent as a service request
+                    resp = pick_place_routine(TEST_SCENE_NUM, OBJECT_NAME, WHICH_ARM, PICK_POSE, PLACE_POSE)
 
-                print ("Response: ",resp.success)
+                    print ("Response: ",resp.success)
 
-            except rospy.ServiceException, e:
-                print "Service call failed: %s"%e
+                except rospy.ServiceException, e:
+                    print "Service call failed: %s"%e
+                pass
+            else: continue
 
         # TODO: Output your request parameters into output yaml file
         yaml_filename = 'output_{}.yaml'.format(TEST_SCENE_NUM.data)
@@ -322,7 +318,7 @@ if __name__ == '__main__':
     rospy.init_node('clustering', anonymous=True)
 
     # TODO: Create Subscribers
-    pcl_sub = rospy.Subscriber("/pr2/world/points", PointCloud2, pcl_callback, queue_size=1)
+    pcl_sub = rospy.Subscriber("/pr2/world/points", pc2.PointCloud2, pcl_callback, queue_size=1)
 
     # TODO: Create Publishers
     pcl_objects_pub = rospy.Publisher("/pcl_objects", PointCloud2, queue_size=1)

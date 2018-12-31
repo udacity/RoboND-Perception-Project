@@ -8,6 +8,9 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn import cross_validation
 from sklearn import metrics
 
+TEST_WORLD_NUM = 1
+
+
 def plot_confusion_matrix(cm, classes,
                           normalize=False,
                           title='Confusion matrix',
@@ -36,7 +39,7 @@ def plot_confusion_matrix(cm, classes,
     plt.xlabel('Predicted label')
 
 # Load training data from disk
-training_set = pickle.load(open('training_set.sav', 'rb'))
+training_set = pickle.load(open('training_set_%s.sav' % TEST_WORLD_NUM, 'rb'))
 
 # Format the features and labels for use with scikit learn
 feature_list = []
@@ -62,7 +65,7 @@ encoder = LabelEncoder()
 y_train = encoder.fit_transform(y_train)
 
 # Create classifier
-clf = svm.SVC(C=0.8, cache_size=500, kernel='linear')
+clf = svm.SVC(kernel='linear')
 
 # Set up 5-fold cross-validation
 kf = cross_validation.KFold(len(X_train),
@@ -101,7 +104,7 @@ clf.fit(X=X_train, y=y_train)
 model = {'classifier': clf, 'classes': encoder.classes_, 'scaler': X_scaler}
 
 # Save classifier to disk
-pickle.dump(model, open('model.sav', 'wb'))
+pickle.dump(model, open('model.sav_%s' % TEST_WORLD_NUM, 'wb'))
 
 # Plot non-normalized confusion matrix
 plt.figure()
