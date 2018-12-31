@@ -24,7 +24,7 @@ from pr2_robot.srv import *
 from rospy_message_converter import message_converter
 import yaml
 
-TEST_WORLD_NUM = 1
+TEST_WORLD_NUM = 2
 
 # Helper function to get surface normals
 def get_normals(cloud):

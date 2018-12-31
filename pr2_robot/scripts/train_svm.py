@@ -8,7 +8,7 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn import cross_validation
 from sklearn import metrics
 
-TEST_WORLD_NUM = 1
+TEST_WORLD_NUM = 3
 
 
 def plot_confusion_matrix(cm, classes,
@@ -104,7 +104,7 @@ clf.fit(X=X_train, y=y_train)
 model = {'classifier': clf, 'classes': encoder.classes_, 'scaler': X_scaler}
 
 # Save classifier to disk
-pickle.dump(model, open('model.sav_%s' % TEST_WORLD_NUM, 'wb'))
+pickle.dump(model, open('model_%s.sav' % TEST_WORLD_NUM, 'wb'))
 
 # Plot non-normalized confusion matrix
 plt.figure()
