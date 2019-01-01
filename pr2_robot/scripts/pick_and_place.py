@@ -121,9 +121,9 @@ def pcl_callback(pcl_msg):
     ec = white_cloud.make_EuclideanClusterExtraction()
     # Set tolerances for distance threshold 
     # as well as minimum and maximum cluster size (in points)
-    ec.set_ClusterTolerance(0.06) # 0.05, 0.02
+    ec.set_ClusterTolerance(0.06) # 0.02
     ec.set_MinClusterSize(50) # 50
-    ec.set_MaxClusterSize(3000) #1400, 3000, 25000
+    ec.set_MaxClusterSize(3000) # 25000
 
     # Search the k-d tree for clusters
     ec.set_SearchMethod(tree)
@@ -156,6 +156,9 @@ def pcl_callback(pcl_msg):
     pcl_table_pub.publish(ros_cloud_table)
     pcl_cluster_pub.publish(ros_cluster_cloud)
 
+    # Test camera
+    ros_orig_img = pcl_to_ros(cloud_filtered)
+    camera_pub.publish(ros_orig_img)
 
     # Classify the clusters! (loop through each detected cluster one at a time)
     detected_objects_labels = []
@@ -225,9 +228,11 @@ def pcl_callback(pcl_msg):
 def pr2_mover(object_list):
     # Set which world we're in and our output file name. Make sure to also change the testworld# in pick_place_project.launch
     # at lines 13, 39
+    dict_list = []
     test_scene_num = Int32()
     test_scene_num.data = TEST_WORLD_NUM
     arm_name = String()
+    object_name = String()
     place_pose = Pose()
     pick_pose = Pose()
 
@@ -235,96 +240,66 @@ def pr2_mover(object_list):
     object_list_param = rospy.get_param('/object_list')
     box_param = rospy.get_param('/dropbox')
 
-    box_name = []
-    box_group = []
-    box_position = []
-    # We'll loop through the two boxes
-    for i in range(0, len(box_param)):
-        box_name.append(box_param[i]['name'])
-        box_group.append(box_param[i]['group'])
-        box_position.append(box_param[i]['position'])
+    left_dropbox    = dropbox_list_param[0]['position']
+    right_dropbox   = dropbox_list_param[1]['position']
 
-
-
-    # Get the PointCloud for a given object and obtain it's centroid
-    # Compare the label with the pick list and provide the centroid
-
-
-    # The way it will actually work within your code is that you'll iterate over each item in the pick list, 
-    # see whether you found it in your perception analysis, then if you did, populate the pick_pose message with the centroid. 
-    # Since you'll do this with each object one at a time, a convenient way to save the messages 
-    # for each object is in a list of dictionaries. 
-
+    # TODO: Rotate PR2 in place to capture side tables for the collision map
 
     # With each iteration over the pick list, you can create a dictionary with the above 
     # function and then generate a list of dictionaries containing all your ROS service request messages.ie.e
-    dict_list = []
-    for i in range(0, len(object_list_param)):
+    
+    for i in range(len(object_list_param)):
+        object_label = object_list_param[i]['name']
+        object_group = object_list_param[i]['group']
         
-        labels = []
-        centroids = [] # to be list of tuples (x, y, z)
         for object in object_list:
             labels.append(object.label)
             points_arr = ros_to_pcl(object.cloud).to_array()
-            temp = np.mean(points_arr, axis=0)[:3]
-            centroids.append(temp)
+            centroids.append(np.mean(points_arr, axis=0)[:3])
 
-        object_name = String()
-        # This is getting the first object name and box from the picklist
+        for centroid in centroids:
+            centroids_float = [np.asscalar(coordinate) for coordinate in centroid]
 
-        object_name.data = object_list_param[i]['name']
-        object_group = object_list_param[i]['group']
+        for label in labels:
+            # create requests
+            if label == object_list_param[i]['name']:
+                print labels
+                OBJECT_NAME.data    = object_list_param[i]['name']
+                PICK_POSE.position.x = centroids_float[0]
+                PICK_POSE.position.y = centroids_float[1]
+                PICK_POSE.position.z = centroids_float[2]
 
-        # arm_name = String()
-        # place_pose = Pose()
+                # TODO: Assign the arm to be used for pick_place
+                OBJECT_GROUP = object_list_param[i]['group']
+                WHICH_ARM.data = 'right' if  OBJECT_GROUP == 'green' else 'left'
 
-        # arm_name - Right for Green Box, Left for Red Box
-        if object_group == 'red':
-            arm_name.data = 'left'
-            place_pose.position.x = box_position[0][0]
-            place_pose.position.y = box_position[0][1]
-            place_pose.position.z = box_position[0][2]
-        else:
-            arm_name.data = 'right'
-            place_pose.position.x = box_position[1][0]
-            place_pose.position.y = box_position[1][1]
-            place_pose.position.z = box_position[1][2]   
+                # TODO: Create 'place_pose' for the object
+                DROPBOX_POSITION = left_dropbox if WHICH_ARM.data == 'left' else right_dropbox
 
+                PLACE_POSE.position.x = DROPBOX_POSITION[0]
+                PLACE_POSE.position.y = DROPBOX_POSITION[1]
+                PLACE_POSE.position.z = DROPBOX_POSITION[2]
 
-        # pick_pose
-        # pick_pose = Pose()
-        desired_object = object_list_param[i]['name']
-        print "\n\nPicking up ", desired_object, "\n\n"
-        print "\n\nPutting in ", object_group, "\n\n"
+                # TODO: Create a list of dictionaries (made with make_yaml_dict()) for later output to yaml format
+                # Populate various ROS messages
+                yaml_dict = make_yaml_dict(TEST_SCENE_NUM, WHICH_ARM, OBJECT_NAME, PICK_POSE, PLACE_POSE)
+                dict_list.append(yaml_dict)
 
+               # Wait for 'pick_place_routine' service to come up
+                rospy.wait_for_service('pick_place_routine')
 
-        # Match desired object with the centroid list/labels
-        try:
-            labelPosition = labels.index(desired_object)
-            pick_pose.position.x = np.asscalar(centroids[labelPosition][0])
-            pick_pose.position.y = np.asscalar(centroids[labelPosition][1])
-            pick_pose.position.z = np.asscalar(centroids[labelPosition][2])
-        except ValueError:
-            continue
+                try:
+                    pick_place_routine = rospy.ServiceProxy('pick_place_routine', PickPlace)
 
-        # Populate various ROS messages
-        yaml_dict = make_yaml_dict(test_scene_num, arm_name, object_name, pick_pose, place_pose)
-        dict_list.append(yaml_dict)
+                    # TODO: Insert your message variables to be sent as a service request
+                    resp = pick_place_routine(TEST_SCENE_NUM, OBJECT_NAME, WHICH_ARM, PICK_POSE, PLACE_POSE)
 
-        # Wait for 'pick_place_routine' service to come up
-        rospy.wait_for_service('pick_place_routine')
+                    print ("Response: ",resp.success)
 
-        try:
-            pick_place_routine = rospy.ServiceProxy('pick_place_routine', PickPlace)
-
-            # Insert your message variables to be sent as a service request
-            resp = pick_place_routine(test_scene_num, object_name, arm_name, pick_pose, place_pose)
-
-            print ("Response: ",resp.success)
-
-        except rospy.ServiceException, e:
-            print "Service call failed: %s"%e
-
+                except rospy.ServiceException, e:
+                    print "Service call failed: %s"%e
+                pass
+            else: continue
 
     # Output your request parameters into output yaml file
     yaml_filename = 'output_{}.yaml'.format(test_scene_num.data)
@@ -339,6 +314,9 @@ if __name__ == '__main__':
     pcl_sub = rospy.Subscriber("/pr2/world/points", pc2.PointCloud2, pcl_callback, queue_size=1)
 
     # Create Publishers
+    # Test if camera works
+    camera_pub = rospy.Publisher('/pr2/camera', pc2.PointCloud2, queue_size=1)
+
     # Publish to verify our above pcl_sub worked
     pcl_cluster_pub = rospy.Publisher("/pcl_world", PointCloud2, queue_size=1)
     # Publishers for the objects and the table
