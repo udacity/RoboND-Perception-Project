@@ -65,24 +65,21 @@ def pcl_callback(pcl_msg):
     # Set the number of neighboring points to analyze for any given point
     outlier_filter.set_mean_k(50)
     # Set threshold scale factor
-    x = 0.1
+    x = 1.0
     # Any point with a mean distance larger than global (mean distance+x*std_dev) will be considered outlier
     outlier_filter.set_std_dev_mul_thresh(x)
     # Finally call the filter function for magic
     cloud_filtered = outlier_filter.filter()
 
 
-
     ### PassThrough Filter z-axis
     passThrough = cloud_filtered.make_passthrough_filter()
-
     # Assign axis and range to the passthrough filter object.
     filter_axis = 'z'
     passThrough.set_filter_field_name(filter_axis)
     axis_min = 0.6
-    axis_max = 1.1
+    axis_max = 1.1  # 0.85, 0.75
     passThrough.set_filter_limits(axis_min, axis_max)
-
     # Finally use the filter function to obtain the resultant point cloud. 
     cloud_filtered = passThrough.filter()
 
@@ -94,27 +91,8 @@ def pcl_callback(pcl_msg):
     axis_min = -0.5
     axis_max = 0.5
     passThrough.set_filter_limits(axis_min, axis_max)
-
     # Finally use the filter function to obtain the resultant point cloud. 
     cloud_filtered = passThrough.filter()
-
-    ### Statistical Outlier Removal Filter
-    # Much like the previous filters, we start by creating a filter object: 
-    outlier_filter = cloud_filtered.make_statistical_outlier_filter()
-
-    # Set the number of neighboring points to analyze for any given point
-    outlier_filter.set_mean_k(50)
-
-    # Set threshold scale factor
-    x = 0.1
-
-    # Any point with a mean distance larger than global (mean distance+x*std_dev) will be considered outlier
-    outlier_filter.set_std_dev_mul_thresh(x)
-
-    # Finally call the filter function for magic
-    cloud_filtered = outlier_filter.filter()
-
-
 
     ### RANSAC Plane Segmentation
     # Create the segmentation object
@@ -143,9 +121,9 @@ def pcl_callback(pcl_msg):
     ec = white_cloud.make_EuclideanClusterExtraction()
     # Set tolerances for distance threshold 
     # as well as minimum and maximum cluster size (in points)
-    ec.set_ClusterTolerance(0.01) # 0.05
-    ec.set_MinClusterSize(100) # 50
-    ec.set_MaxClusterSize(50000) #1400, 3000
+    ec.set_ClusterTolerance(0.06) # 0.05, 0.02
+    ec.set_MinClusterSize(50) # 50
+    ec.set_MaxClusterSize(3000) #1400, 3000, 25000
 
     # Search the k-d tree for clusters
     ec.set_SearchMethod(tree)
@@ -211,6 +189,7 @@ def pcl_callback(pcl_msg):
         do.cloud = ros_cluster
         detected_objects.append(do)
 
+    # remove later
     print "Trying to match the pick list with the objects detected..."
     print "\n"
     # Publish the list of detected objects
