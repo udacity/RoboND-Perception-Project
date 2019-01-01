@@ -24,7 +24,7 @@ from pr2_robot.srv import *
 from rospy_message_converter import message_converter
 import yaml
 
-TEST_WORLD_NUM = 2
+TEST_WORLD_NUM = 3
 
 # Helper function to get surface normals
 def get_normals(cloud):
@@ -50,9 +50,6 @@ def send_to_yaml(yaml_filename, dict_list):
 
 # Callback function for your Point Cloud Subscriber
 def pcl_callback(pcl_msg):
-
-    # Exercise-2 TODOs:
-
     ### Convert ROS msg to PCL data
     cloud = ros_to_pcl(pcl_msg)
 
@@ -63,25 +60,20 @@ def pcl_callback(pcl_msg):
     # Call the filter function to obtain the resultant downsampled point cloud
     cloud_filtered = vox.filter()
 
-    ### Statistical Outlier Removal Filter
-    # Much like the previous filters, we start by creating a filter object: 
+    # Statistical Outlier Filtering
     outlier_filter = cloud_filtered.make_statistical_outlier_filter()
-
     # Set the number of neighboring points to analyze for any given point
     outlier_filter.set_mean_k(50)
-
     # Set threshold scale factor
-    x = 1.0
-
+    x = 0.1
     # Any point with a mean distance larger than global (mean distance+x*std_dev) will be considered outlier
     outlier_filter.set_std_dev_mul_thresh(x)
-
     # Finally call the filter function for magic
     cloud_filtered = outlier_filter.filter()
 
 
-    ### PassThrough Filter
-    # Create a PassThrough filter object first across the Z axis
+
+    ### PassThrough Filter z-axis
     passThrough = cloud_filtered.make_passthrough_filter()
 
     # Assign axis and range to the passthrough filter object.
@@ -94,7 +86,7 @@ def pcl_callback(pcl_msg):
     # Finally use the filter function to obtain the resultant point cloud. 
     cloud_filtered = passThrough.filter()
 
-    ## Now, Create a PassThrough filter object across the Y axis
+    ### Passthrough Filter y-axis
     passThrough = cloud_filtered.make_passthrough_filter()
     # Assign axis and range to the passthrough filter object.
     filter_axis = 'y'
@@ -105,6 +97,23 @@ def pcl_callback(pcl_msg):
 
     # Finally use the filter function to obtain the resultant point cloud. 
     cloud_filtered = passThrough.filter()
+
+    ### Statistical Outlier Removal Filter
+    # Much like the previous filters, we start by creating a filter object: 
+    outlier_filter = cloud_filtered.make_statistical_outlier_filter()
+
+    # Set the number of neighboring points to analyze for any given point
+    outlier_filter.set_mean_k(50)
+
+    # Set threshold scale factor
+    x = 0.1
+
+    # Any point with a mean distance larger than global (mean distance+x*std_dev) will be considered outlier
+    outlier_filter.set_std_dev_mul_thresh(x)
+
+    # Finally call the filter function for magic
+    cloud_filtered = outlier_filter.filter()
+
 
 
     ### RANSAC Plane Segmentation
@@ -121,12 +130,12 @@ def pcl_callback(pcl_msg):
     inliers, coefficients = seg.segment()
 
     ### Extract inliers and outliers
-    extracted_inliers = cloud_filtered.extract(inliers, negative=False)
-    extracted_outliers = cloud_filtered.extract(inliers, negative=True)
+    cloud_table = cloud_filtered.extract(inliers, negative=False)
+    cloud_objects = cloud_filtered.extract(inliers, negative=True)
 
     ### Euclidean Clustering
     # Go from XYZRGB to RGB since to build the k-d tree we only needs spatial data
-    white_cloud = XYZRGB_to_XYZ(extracted_outliers)
+    white_cloud = XYZRGB_to_XYZ(cloud_objects)
     # Apply function to convert XYZRGB to XYZ
     tree = white_cloud.make_kdtree()
 
@@ -160,8 +169,8 @@ def pcl_callback(pcl_msg):
     cluster_cloud.from_list(color_cluster_point_list)
 
     ### Convert PCL data to ROS messages
-    ros_cloud_objects = pcl_to_ros(extracted_outliers) 
-    ros_cloud_table = pcl_to_ros(extracted_inliers)
+    ros_cloud_objects = pcl_to_ros(cloud_objects) 
+    ros_cloud_table = pcl_to_ros(cloud_table)
     ros_cluster_cloud = pcl_to_ros(cluster_cloud)
 
     ### Publish ROS messages
@@ -170,15 +179,13 @@ def pcl_callback(pcl_msg):
     pcl_cluster_pub.publish(ros_cluster_cloud)
 
 
-    # Exercise-3 TODOs: 
-
     # Classify the clusters! (loop through each detected cluster one at a time)
     detected_objects_labels = []
     detected_objects = []
 
     for index, pts_list in enumerate(cluster_indices):
-        # Grab the points for the cluster from the extracted outliers (extracted_outliers)
-        pcl_cluster = extracted_outliers.extract(pts_list)
+        # Grab the points for the cluster from the extracted outliers (cloud_objects)
+        pcl_cluster = cloud_objects.extract(pts_list)
         ros_cluster = pcl_to_ros(pcl_cluster)
 
         # Extract histogram features
@@ -229,11 +236,11 @@ def pcl_callback(pcl_msg):
     detected_set_objects = set(detected_objects_labels)
 
 
-    if detected_set_objects == pick_set_objects:
-        try:
-            pr2_mover(detected_objects)
-        except rospy.ROSInterruptException:
-            pass
+    # if detected_set_objects == pick_set_objects:
+    try:
+        pr2_mover(detected_objects)
+    except rospy.ROSInterruptException:
+        pass
 
 # function to load parameters and request PickPlace service
 def pr2_mover(object_list):

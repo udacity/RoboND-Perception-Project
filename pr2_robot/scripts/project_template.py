@@ -24,7 +24,7 @@ from pr2_robot.srv import *
 from rospy_message_converter import message_converter
 import yaml
 
-TEST_WORLD_NUM = 1
+TEST_WORLD_NUM = 3
 
 # Helper function to get surface normals
 def get_normals(cloud):
@@ -55,23 +55,6 @@ def pcl_callback(pcl_msg):
     # TODO: Convert ROS msg to PCL data
     cloud = ros_to_pcl(pcl_msg)
 
-    
-    # TODO: Statistical Outlier Filtering
-    # Much like the previous filters, we start by creating a filter object:
-    outlier_filter = cloud.make_statistical_outlier_filter()
-
-    # Set the number of neighboring points to analyze for any given point
-    outlier_filter.set_mean_k(5)
-
-    # Set threshold scale factor
-    x = 0.15
-
-    # Any point with a mean distance larger than global (mean distance+x*std_dev) will be considered outlier
-    outlier_filter.set_std_dev_mul_thresh(x)
-
-    # Finally call the filter function for magic
-    cloud = outlier_filter.filter()
-
     # TODO: Voxel Grid Downsampling
     # vox = cloud.make_voxel_grid_filter()
     vox = cloud.make_voxel_grid_filter()
@@ -87,7 +70,7 @@ def pcl_callback(pcl_msg):
     filter_axis = 'z'
     passthrough.set_filter_field_name(filter_axis)
     axis_min = 0.6
-    axis_max = 0.75
+    axis_max = 1.1
     passthrough.set_filter_limits(axis_min, axis_max)
 
     # Finally use the filter function to obtain the resultant point cloud.
@@ -106,6 +89,22 @@ def pcl_callback(pcl_msg):
 
     # Finally use the filter function to obtain the resultant point cloud.
     cloud_filtered = passthrough.filter()
+
+    # TODO: Statistical Outlier Filtering
+    # Much like the previous filters, we start by creating a filter object:
+    outlier_filter = cloud.make_statistical_outlier_filter()
+
+    # Set the number of neighboring points to analyze for any given point
+    outlier_filter.set_mean_k(5)
+
+    # Set threshold scale factor
+    x = 0.15
+
+    # Any point with a mean distance larger than global (mean distance+x*std_dev) will be considered outlier
+    outlier_filter.set_std_dev_mul_thresh(x)
+
+    # Finally call the filter function for magic
+    cloud = outlier_filter.filter()
 
 
     # TODO: RANSAC Plane Segmentation
@@ -134,7 +133,7 @@ def pcl_callback(pcl_msg):
     # as well as minimum and maximum cluster size (in points)
     ec.set_ClusterTolerance(0.02) # 0.05
     ec.set_MinClusterSize(50) # 10
-    ec.set_MaxClusterSize(25000) # 1400
+    ec.set_MaxClusterSize(6000) # 1400
 
     # Search the k-d tree for clusters
     ec.set_SearchMethod(tree)
@@ -213,16 +212,22 @@ def pcl_callback(pcl_msg):
     # Publish the list of detected objects
     detected_objects_pub.publish(detected_objects)
 
-    
-
     # Suggested location for where to invoke your pr2_mover() function within pcl_callback()
     # Could add some logic to determine whether or not your object detections are robust
     # before calling pr2_mover()
+    # object_list_param = rospy.get_param('/object_list')
 
-    try:
-        pr2_mover(detected_objects)
-    except rospy.ROSInterruptException:
-        pass
+    pick_list_objects = []
+    for i in range(len(object_list_param)):
+        pick_list_objects.append(object_list_param[i]['name'])
+    pick_set_objects = set(pick_list_objects)
+    detected_set_objects = set(detected_objects_labels)
+
+    if detected_set_objects == pick_set_objects:
+        try:
+            pr2_mover(detected_objects)
+        except rospy.ROSInterruptException:
+            pass
 
 
 # function to load parameters and request PickPlace service
