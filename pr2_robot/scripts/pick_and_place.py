@@ -24,7 +24,7 @@ from pr2_robot.srv import *
 from rospy_message_converter import message_converter
 import yaml
 
-TEST_WORLD_NUM = 3
+TEST_WORLD_NUM = 1
 
 # Helper function to get surface normals
 def get_normals(cloud):
@@ -53,9 +53,10 @@ def pcl_callback(pcl_msg):
     ### Convert ROS msg to PCL data
     cloud = ros_to_pcl(pcl_msg)
 
-    ### Voxel Grid Downsampling
+    ### FILTERS
+    # Voxel Grid Downsampling
     vox = cloud.make_voxel_grid_filter()
-    LEAF_SIZE = 0.01 # 0.003
+    LEAF_SIZE = 0.003
     vox.set_leaf_size(LEAF_SIZE, LEAF_SIZE, LEAF_SIZE)
     # Call the filter function to obtain the resultant downsampled point cloud
     cloud_filtered = vox.filter()
@@ -71,7 +72,7 @@ def pcl_callback(pcl_msg):
     # Finally call the filter function for magic
     cloud_filtered = outlier_filter.filter()
 
-
+    
     ### PassThrough Filter z-axis
     passThrough = cloud_filtered.make_passthrough_filter()
     # Assign axis and range to the passthrough filter object.
@@ -93,6 +94,7 @@ def pcl_callback(pcl_msg):
     passThrough.set_filter_limits(axis_min, axis_max)
     # Finally use the filter function to obtain the resultant point cloud. 
     cloud_filtered = passThrough.filter()
+
 
     ### RANSAC Plane Segmentation
     # Create the segmentation object
@@ -121,9 +123,9 @@ def pcl_callback(pcl_msg):
     ec = white_cloud.make_EuclideanClusterExtraction()
     # Set tolerances for distance threshold 
     # as well as minimum and maximum cluster size (in points)
-    ec.set_ClusterTolerance(0.06) # 0.02
+    ec.set_ClusterTolerance(0.02) # 0.02
     ec.set_MinClusterSize(50) # 50
-    ec.set_MaxClusterSize(3000) # 25000
+    ec.set_MaxClusterSize(25000) # 50000
 
     # Search the k-d tree for clusters
     ec.set_SearchMethod(tree)
@@ -192,9 +194,6 @@ def pcl_callback(pcl_msg):
         do.cloud = ros_cluster
         detected_objects.append(do)
 
-    # remove later
-    print "Trying to match the pick list with the objects detected..."
-    print "\n"
     # Publish the list of detected objects
     rospy.loginfo('Detected {} objects: {}'.format(len(detected_objects_labels), detected_objects_labels))
 
@@ -205,6 +204,7 @@ def pcl_callback(pcl_msg):
     # Suggested location for where to invoke your pr2_mover() function within pcl_callback()
     # Could add some logic to determine whether or not your object detections are robust
     # before calling pr2_mover()
+
     object_list_param = rospy.get_param('/object_list')
     pick_list_objects = []
     for i in range(len(object_list_param)):
@@ -218,11 +218,11 @@ def pcl_callback(pcl_msg):
     detected_set_objects = set(detected_objects_labels)
 
 
-    # if detected_set_objects == pick_set_objects:
-    try:
-        pr2_mover(detected_objects)
-    except rospy.ROSInterruptException:
-        pass
+    if detected_set_objects == pick_set_objects:
+        try:
+            pr2_mover(detected_objects)
+        except rospy.ROSInterruptException:
+            pass
 
 # function to load parameters and request PickPlace service
 def pr2_mover(object_list):
@@ -240,8 +240,8 @@ def pr2_mover(object_list):
     object_list_param = rospy.get_param('/object_list')
     box_param = rospy.get_param('/dropbox')
 
-    left_dropbox    = dropbox_list_param[0]['position']
-    right_dropbox   = dropbox_list_param[1]['position']
+    left_dropbox    = box_param[0]['position']
+    right_dropbox   = box_param[1]['position']
 
     # TODO: Rotate PR2 in place to capture side tables for the collision map
 
@@ -249,8 +249,10 @@ def pr2_mover(object_list):
     # function and then generate a list of dictionaries containing all your ROS service request messages.ie.e
     
     for i in range(len(object_list_param)):
-        object_label = object_list_param[i]['name']
-        object_group = object_list_param[i]['group']
+        labels = []
+        centroids = []
+        # object_name = object_list_param[i]['name']
+        # object_group = object_list_param[i]['group']
         
         for object in object_list:
             labels.append(object.label)
@@ -264,25 +266,26 @@ def pr2_mover(object_list):
             # create requests
             if label == object_list_param[i]['name']:
                 print labels
-                OBJECT_NAME.data    = object_list_param[i]['name']
-                PICK_POSE.position.x = centroids_float[0]
-                PICK_POSE.position.y = centroids_float[1]
-                PICK_POSE.position.z = centroids_float[2]
+                object_name.data    = object_list_param[i]['name']
+                object_label         = object_list_param[i]['name']
+                pick_pose.position.x = centroids_float[0]
+                pick_pose.position.y = centroids_float[1]
+                pick_pose.position.z = centroids_float[2]
 
                 # TODO: Assign the arm to be used for pick_place
                 OBJECT_GROUP = object_list_param[i]['group']
-                WHICH_ARM.data = 'right' if  OBJECT_GROUP == 'green' else 'left'
+                arm_name.data = 'right' if  OBJECT_GROUP == 'green' else 'left'
 
                 # TODO: Create 'place_pose' for the object
-                DROPBOX_POSITION = left_dropbox if WHICH_ARM.data == 'left' else right_dropbox
+                DROPBOX_POSITION = left_dropbox if arm_name.data == 'left' else right_dropbox
 
-                PLACE_POSE.position.x = DROPBOX_POSITION[0]
-                PLACE_POSE.position.y = DROPBOX_POSITION[1]
-                PLACE_POSE.position.z = DROPBOX_POSITION[2]
+                place_pose.position.x = DROPBOX_POSITION[0]
+                place_pose.position.y = DROPBOX_POSITION[1]
+                place_pose.position.z = DROPBOX_POSITION[2]
 
                 # TODO: Create a list of dictionaries (made with make_yaml_dict()) for later output to yaml format
                 # Populate various ROS messages
-                yaml_dict = make_yaml_dict(TEST_SCENE_NUM, WHICH_ARM, OBJECT_NAME, PICK_POSE, PLACE_POSE)
+                yaml_dict = make_yaml_dict(test_scene_num, arm_name, object_name, pick_pose, place_pose)
                 dict_list.append(yaml_dict)
 
                # Wait for 'pick_place_routine' service to come up
@@ -292,7 +295,7 @@ def pr2_mover(object_list):
                     pick_place_routine = rospy.ServiceProxy('pick_place_routine', PickPlace)
 
                     # TODO: Insert your message variables to be sent as a service request
-                    resp = pick_place_routine(TEST_SCENE_NUM, OBJECT_NAME, WHICH_ARM, PICK_POSE, PLACE_POSE)
+                    resp = pick_place_routine(test_scene_num, object_name, arm_name, pick_pose, place_pose)
 
                     print ("Response: ",resp.success)
 
@@ -311,11 +314,11 @@ if __name__ == '__main__':
     rospy.init_node('clustering', anonymous=True)
 
     # Create Subscriber to bring in camera data (point cloud) from topic /pr2/world/points
-    pcl_sub = rospy.Subscriber("/pr2/world/points", pc2.PointCloud2, pcl_callback, queue_size=1)
+    pcl_sub = rospy.Subscriber("/pr2/world/points", PointCloud2, pcl_callback, queue_size=1)
 
     # Create Publishers
     # Test if camera works
-    camera_pub = rospy.Publisher('/pr2/camera', pc2.PointCloud2, queue_size=1)
+    camera_pub = rospy.Publisher('/pr2/camera', PointCloud2, queue_size=1)
 
     # Publish to verify our above pcl_sub worked
     pcl_cluster_pub = rospy.Publisher("/pcl_world", PointCloud2, queue_size=1)
@@ -327,7 +330,7 @@ if __name__ == '__main__':
     detected_objects_pub = rospy.Publisher("/detected_objects", DetectedObjectsArray, queue_size=1)
     
     # Load Model From disk
-    model = pickle.load(open('model.sav', 'rb'))
+    model = pickle.load(open('model_%s.sav' % TEST_WORLD_NUM, 'rb'))
     clf = model['classifier']
     encoder = LabelEncoder()
     encoder.classes_ = model['classes']
