@@ -68,7 +68,7 @@ def pcl_callback(pcl_msg):
     # Set the number of neighboring points to analyze for any given point
     outlier_filter.set_mean_k(50)
     # Set threshold scale factor
-    x = 10.0
+    x = 1.0
     # Any point with a mean distance larger than global (mean distance+x*std_dev) will be considered outlier
     outlier_filter.set_std_dev_mul_thresh(x)
     # Finally call the filter function for magic
